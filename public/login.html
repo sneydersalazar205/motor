@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Banda - Terraza Roja</title>
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Terraza Roja</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html#nosotros">Nosotros</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#referencias">Referencias</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="reservation.html">Reservaciones</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container mt-5" style="max-width:400px;">
+  <h2>Acceso Solo Miembros</h2>
+  <form id="loginForm">
+    <div class="mb-3">
+      <label for="username" class="form-label">Usuario</label>
+      <input type="text" class="form-control" id="username" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Contraseña</label>
+      <input type="password" class="form-control" id="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Entrar</button>
+  </form>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="reservModal" tabindex="-1" aria-labelledby="reservLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reservLabel">Detalles de Reservación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="reservDetails"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

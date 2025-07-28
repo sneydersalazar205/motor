@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraza Roja - Inicio</title>
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Terraza Roja</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#nosotros">Nosotros</a></li>
+        <li class="nav-item"><a class="nav-link" href="#referencias">Referencias</a></li>
+        <li class="nav-item"><a class="nav-link" href="reservation.html">Reservaciones</a></li>
+        <li class="nav-item"><a class="nav-link" href="login.html">Acceso Banda</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header class="p-5 text-center bg-light">
+  <h1>Bienvenidos a Terraza Roja</h1>
+  <p>Tu mejor opción para amenizar eventos.</p>
+</header>
+<section class="container mt-4">
+  <h2>Nuestra Música</h2>
+  <p>Escucha nuestras presentaciones y conoce más sobre la banda.</p>
+  <!-- Aquí podría ir un reproductor de audio o vídeos embed -->
+</section>
+<section class="container mt-4">
+  <h2>Servicios</h2>
+  <p>Ofrecemos paquetes para bodas, cumpleaños y cualquier tipo de evento.</p>
+</section>
+
+<section id="nosotros" class="container mt-4">
+  <h2>Nosotros</h2>
+  <p>Terraza Roja es una banda de <strong>rock</strong> comprometida con llevar la mejor energía a tu celebración.</p>
+</section>
+
+<section id="referencias" class="container mt-4">
+  <h2>Referencias</h2>
+  <div id="refCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="https://via.placeholder.com/800x400?text=Rock+1" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item">
+        <img src="https://via.placeholder.com/800x400?text=Rock+2" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item">
+        <img src="https://via.placeholder.com/800x400?text=Rock+3" class="d-block w-100" alt="...">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#refCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#refCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</section>
+<script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/index.js"></script>
+</body>
+</html>
