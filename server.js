@@ -46,7 +46,11 @@ app.get('/api/reservations', (req, res) => {
 });
 
 async function sendMail(data) {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const SMTP_PORT = process.env.SMTP_PORT || '587';
+  const SMTP_USER = process.env.SMTP_USER || 'sneydersalazar205@gmail.com';
+  const SMTP_PASS = process.env.SMTP_PASS || 'ejxo rqek jjyc ffdp';
+
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
     throw new Error('Credenciales SMTP no configuradas');
   }

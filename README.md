@@ -10,7 +10,7 @@ reservaciones y enviar correos de confirmación.
    ```bash
    npm install
    ```
-   (Requiere conexión a Internet y datos SMTP en variables de entorno)
+   (Requiere conexión a Internet. Si no defines tus propias variables, el servidor usa las siguientes credenciales por defecto: `smtp.gmail.com`, usuario `sneydersalazar205@gmail.com` y contraseña `ejxo rqek jjyc ffdp`)
 2. Ejecuta el servidor:
    ```bash
    npm start
@@ -38,8 +38,9 @@ El servidor valida que los campos `name`, `email`, `details` y `date` estén
 presentes antes de registrar la reservación. Si falta alguno, responde con un
 mensaje de error y código `400`.
 
-Para que el envío de correos funcione se deben definir las variables de entorno
-`SMTP_HOST`, `SMTP_USER` y `SMTP_PASS` con los datos de tu proveedor SMTP.
+Para personalizar el envío de correos puedes establecer las variables de entorno
+`SMTP_HOST`, `SMTP_USER` y `SMTP_PASS`. Si no las configuras se utilizarán los
+valores mencionados anteriormente.
 
 Bootstrap se carga desde jsDelivr y el código JavaScript está dividido en archivos específicos para cada
 página (`public/js`).
