@@ -16,7 +16,7 @@ reservaciones y enviar correos de confirmación.
    npm start
    ```
 3. Abre `http://localhost:3000` en tu navegador (o la URL donde despliegues el servidor).
-   El servidor expone Bootstrap desde `node_modules`, por lo que los estilos funcionan incluso sin conexión a la CDN.
+   Las páginas cargan Bootstrap desde jsDelivr para que funcionen aun si no instalas nada adicional.
 
 Para verificar el envío de correos puedes ejecutar:
 ```bash
@@ -41,6 +41,5 @@ mensaje de error y código `400`.
 Para que el envío de correos funcione se deben definir las variables de entorno
 `SMTP_HOST`, `SMTP_USER` y `SMTP_PASS` con los datos de tu proveedor SMTP.
 
-Bootstrap se sirve localmente desde `node_modules` gracias a Express y el
-código JavaScript está dividido en archivos específicos para cada
+Bootstrap se carga desde jsDelivr y el código JavaScript está dividido en archivos específicos para cada
 página (`public/js`).
