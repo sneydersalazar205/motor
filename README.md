@@ -15,7 +15,7 @@ reservaciones y enviar correos de confirmación.
    ```bash
    npm start
    ```
-3. Abre `https://terrazaroja.com` en tu navegador (o `http://localhost:3000` para pruebas locales).
+3. Abre `http://localhost:3000` en tu navegador (o la URL donde despliegues el servidor).
 
 Para verificar el envío de correos puedes ejecutar:
 ```bash
@@ -33,6 +33,5 @@ envío se ejecuta correctamente.
 - **Acceso miembros** (`login.html`): permite consultar las reservaciones
   almacenadas mediante un modal.
 
-Bootstrap se carga desde `node_modules` a través del servidor Express y el
-código JavaScript se divide en archivos específicos para cada página
-(`public/js`).
+Bootstrap se carga desde la CDN de jsDelivr y el código JavaScript está
+dividido en archivos específicos para cada página (`public/js`).
