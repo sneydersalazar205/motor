@@ -6,8 +6,9 @@ const fs = require('fs');
 const app = express();
 app.use(express.json());
 
-// Serve static files
+// Serve static files from public and Bootstrap from node_modules
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/bootstrap', express.static(path.join(__dirname, 'node_modules', 'bootstrap', 'dist')));
 
 const RES_FILE = path.join(__dirname, 'reservations.json');
 function readReservations() {
