@@ -18,17 +18,25 @@ function saveReservations(list) {
 }
 
 // Endpoint to create a reservation and send confirmation email
-app.post('/api/reservations', async (req, res) => {
-  const data = req.body;
-  const list = readReservations();
-  list.push(data);
-  saveReservations(list);
+// Create a reservation and send confirmation email
+app.post('/api/reservations', async (req, res, next) => {
   try {
-    await sendMail(data);
+    const { name, email, details, date } = req.body;
+    if (!name || !email || !details || !date) {
+      return res.status(400).json({ error: 'Faltan datos requeridos' });
+    }
+    const list = readReservations();
+    list.push({ name, email, details, date });
+    saveReservations(list);
+    try {
+      await sendMail({ name, email, details, date });
+    } catch (err) {
+      console.error('Email error:', err.message);
+    }
+    res.json({ ok: true });
   } catch (err) {
-    console.error('Email error:', err.message);
+    next(err);
   }
-  res.json({ ok: true });
 });
 
 // Endpoint to retrieve reservations
@@ -37,18 +45,19 @@ app.get('/api/reservations', (req, res) => {
 });
 
 async function sendMail(data) {
-  // Configure transport via environment variables
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    throw new Error('Credenciales SMTP no configuradas');
+  }
+
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT) || 587,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
   });
 
   await transporter.sendMail({
-    from: `Terraza Roja <${process.env.SMTP_USER}>`,
+    from: `Terraza Roja <${SMTP_USER}>`,
     to: data.email,
     subject: 'Confirmación de Reservación',
     text: `Hola ${data.name}, hemos registrado tu evento para ${data.date}. Detalles: ${data.details}`,
@@ -56,6 +65,12 @@ async function sendMail(data) {
 }
 
 const PORT = process.env.PORT || 3000;
+
+// Simple error handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Error interno del servidor' });
+});
 
 module.exports = { app, sendMail };
 

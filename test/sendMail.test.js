@@ -23,6 +23,8 @@ Module._load = function(request, parent, isMain) {
 };
 
 process.env.SMTP_USER = 'test@example.com';
+process.env.SMTP_HOST = 'smtp.example.com';
+process.env.SMTP_PASS = 'pass';
 
 const { sendMail } = require('../server');
 

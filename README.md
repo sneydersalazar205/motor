@@ -28,10 +28,17 @@ envío se ejecuta correctamente.
 
 - **Inicio** (`index.html`): presentación de la banda.
 - **Reservaciones** (`reservation.html`): calendario y formulario para enviar
-  reservaciones. Los datos se almacenan en `reservations.json` y se envía un
+ reservaciones. Los datos se almacenan en `reservations.json` y se envía un
   correo de confirmación usando Nodemailer.
 - **Acceso miembros** (`login.html`): permite consultar las reservaciones
   almacenadas mediante un modal.
+
+El servidor valida que los campos `name`, `email`, `details` y `date` estén
+presentes antes de registrar la reservación. Si falta alguno, responde con un
+mensaje de error y código `400`.
+
+Para que el envío de correos funcione se deben definir las variables de entorno
+`SMTP_HOST`, `SMTP_USER` y `SMTP_PASS` con los datos de tu proveedor SMTP.
 
 Bootstrap se carga desde la CDN de jsDelivr y el código JavaScript está
 dividido en archivos específicos para cada página (`public/js`).
