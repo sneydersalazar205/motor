@@ -34,6 +34,31 @@ docker build -t terraza .
 docker run -p 3001:3001 terraza
 ```
 
+## Nginx y HTTPS
+
+En producción suele colocarse un proxy inverso delante del contenedor. Un bloque
+básico de Nginx para reenviar el tráfico al puerto configurado podría verse así:
+
+```nginx
+server {
+    listen 80;
+    server_name terraza.example.com;
+
+    location / {
+        proxy_pass http://localhost:3001; # usa el puerto que hayas expuesto
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+Tras instalar `certbot` puedes activar un certificado SSL gratuito (Let's Encrypt)
+y redirigir todas las peticiones a HTTPS con:
+
+```bash
+sudo certbot --nginx -d terraza.example.com --redirect
+```
+
 ## Características
 
 - **Inicio** (`index.html`): presentación de la banda.
