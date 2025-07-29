@@ -11,11 +11,11 @@ reservaciones y enviar correos de confirmación.
    npm install
    ```
    (Requiere conexión a Internet. Si no defines tus propias variables, el servidor usa las siguientes credenciales por defecto: `smtp.gmail.com`, usuario `sneydersalazar205@gmail.com` y contraseña `ejxo rqek jjyc ffdp`)
-2. Ejecuta el servidor:
+2. Ejecuta el servidor. Puedes cambiar el puerto estableciendo la variable `PORT`:
    ```bash
-   npm start
+   PORT=3001 npm start   # usa otro valor si prefieres
    ```
-3. Abre `http://localhost:3001` en tu navegador (o la URL donde despliegues el servidor).
+3. Abre `http://localhost:3001` en tu navegador (sustituye 3001 si configuraste otro puerto).
    Las páginas cargan Bootstrap desde jsDelivr para que funcionen aun si no instalas nada adicional.
 
 Para verificar el envío de correos puedes ejecutar:
