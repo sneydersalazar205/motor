@@ -15,7 +15,7 @@ reservaciones y enviar correos de confirmación.
    ```bash
    npm start
    ```
-3. Abre `http://localhost:3000` en tu navegador (o la URL donde despliegues el servidor).
+3. Abre `http://localhost:3001` en tu navegador (o la URL donde despliegues el servidor).
    Las páginas cargan Bootstrap desde jsDelivr para que funcionen aun si no instalas nada adicional.
 
 Para verificar el envío de correos puedes ejecutar:
@@ -25,6 +25,15 @@ npm test
 Este test reemplaza el transporte de Nodemailer y confirma que la función de
 envío se ejecuta correctamente.
 
+## Docker
+
+Puedes construir una imagen y ejecutar el servidor en un contenedor con:
+
+```bash
+docker build -t terraza .
+docker run -p 3001:3001 terraza
+```
+
 ## Características
 
 - **Inicio** (`index.html`): presentación de la banda.
@@ -33,7 +42,6 @@ envío se ejecuta correctamente.
   correo de confirmación usando Nodemailer.
 - **Acceso miembros** (`login.html`): permite consultar las reservaciones
   almacenadas mediante un modal.
-
 
 El servidor valida que los campos `name`, `email`, `phone`, `details` y `date`
 estén presentes antes de registrar la reservación. El teléfono debe contener
