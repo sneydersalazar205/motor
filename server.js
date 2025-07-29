@@ -95,6 +95,7 @@ async function sendMail(data) {
 // Server port
 const PORT = process.env.PORT || 3001;
 
+
 // Simple error handler
 app.use((err, req, res, next) => {
   console.error(err);
