@@ -105,7 +105,12 @@ app.use((err, req, res, next) => {
 module.exports = { app, sendMail, hasConflict };
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  const server = app.listen(PORT, () => {
+    const addr = server.address();
+    const port = typeof addr === 'string' ? addr : addr.port;
+    const host = typeof addr === 'object' && (addr.address === '::' || addr.address === '0.0.0.0')
+      ? 'localhost'
+      : addr.address || 'localhost';
+    console.log(`Server running on http://${host}:${port}`);
   });
 }
