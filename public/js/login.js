@@ -54,27 +54,48 @@ function renderCalendar(reservas) {
 
 function renderReservas(reservas) {
   const body = reservas
-    .filter(r => r.status !== 'cancelled')
-    .map(r => `<div data-id="${r.id}" class="mb-3">
-        <p><strong>${r.date}</strong> - ${r.name} (${r.email})<br>${r.details}<br>${r.phone}</p>
-        <button class="btn btn-success btn-sm confirm">Confirmar</button>
-        <button class="btn btn-danger btn-sm ms-2 cancel">Cancelar</button>
-      </div>`)
+    .map(r => {
+      const statusBadge =
+        r.status === 'confirmed'
+          ? '<span class="badge bg-success">confirmado</span>'
+          : r.status === 'cancelled'
+          ? '<span class="badge bg-secondary">cancelado</span>'
+          : '<span class="badge bg-warning text-dark">pendiente</span>';
+
+      let confirmClass = 'btn-success';
+      let confirmText = 'Confirmar';
+      let confirmDisabled = '';
+      if (r.status === 'confirmed') {
+        confirmClass = 'btn-secondary';
+        confirmText = 'Confirmado';
+        confirmDisabled = 'disabled';
+      } else if (r.status === 'cancelled') {
+        confirmClass = 'btn-dark';
+        confirmText = 'Cancelado';
+        confirmDisabled = 'disabled';
+      }
+
+      const cancelDisabled = r.status === 'cancelled' ? 'disabled' : '';
+
+      return `<div data-id="${r.id}" class="mb-3">
+        <p><strong>${r.date}</strong> - ${r.name} (${r.email})<br>${r.details}<br>${r.phone}<br>Estado: ${statusBadge}</p>
+        <button class="btn ${confirmClass} btn-sm confirm" ${confirmDisabled}>${confirmText}</button>
+        <button class="btn btn-danger btn-sm ms-2 cancel" ${cancelDisabled}>Cancelar</button>
+      </div>`;
+    })
     .join('') || 'No hay reservaciones';
   document.getElementById('reservDetails').innerHTML = body;
   document.querySelectorAll('#reservDetails .confirm').forEach(btn => {
     btn.addEventListener('click', async () => {
+      if (btn.disabled) return;
       const id = btn.parentElement.getAttribute('data-id');
       await actualizar(id, 'confirmed');
-      btn.textContent = '✓';
-      btn.classList.remove('btn-success');
-      btn.classList.add('btn-secondary');
-      btn.disabled = true;
       loadDashboard();
     });
   });
   document.querySelectorAll('#reservDetails .cancel').forEach(btn => {
     btn.addEventListener('click', async () => {
+      if (btn.disabled) return;
       const id = btn.parentElement.getAttribute('data-id');
       await actualizar(id, 'cancelled');
       loadDashboard();
