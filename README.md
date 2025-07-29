@@ -34,6 +34,7 @@ envío se ejecuta correctamente.
 - **Acceso miembros** (`login.html`): permite consultar las reservaciones
   almacenadas mediante un modal.
 
+
 El servidor valida que los campos `name`, `email`, `phone`, `details` y `date`
 estén presentes antes de registrar la reservación. El teléfono debe contener
 exactamente diez dígitos. Además comprueba que no exista otra reservación en el

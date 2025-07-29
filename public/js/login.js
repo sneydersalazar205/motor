@@ -44,12 +44,12 @@ function mostrarReservas() {
           mostrarReservas();
         });
       });
+
       const modal = new bootstrap.Modal(document.getElementById('reservModal'));
       modal.show();
     })
     .catch(err => console.error(err));
 }
-
 async function actualizar(id, status) {
   await fetch('/api/reservations/' + id, {
     method: 'PATCH',
@@ -57,3 +57,4 @@ async function actualizar(id, status) {
     body: JSON.stringify({ status }),
   });
 }
+

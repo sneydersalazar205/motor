@@ -23,7 +23,6 @@ function hasConflict(list, dateStr) {
   const TWO_H = 2 * 60 * 60 * 1000;
   return list.some(r => r.status !== 'cancelled' && Math.abs(new Date(r.date).getTime() - target) < TWO_H);
 }
-
 // Endpoint to create a reservation and send confirmation email
 // Create a reservation and send confirmation email
 app.post('/api/reservations', async (req, res, next) => {
