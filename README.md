@@ -11,11 +11,11 @@ reservaciones y enviar correos de confirmación.
    npm install
    ```
    (Requiere conexión a Internet. Si no defines tus propias variables, el servidor usa las siguientes credenciales por defecto: `smtp.gmail.com`, usuario `sneydersalazar205@gmail.com` y contraseña `ejxo rqek jjyc ffdp`)
-2. Ejecuta el servidor:
+2. Ejecuta el servidor. Puedes cambiar el puerto estableciendo la variable `PORT`:
    ```bash
-   npm start
+   PORT=3001 npm start   # usa otro valor si prefieres
    ```
-3. Abre `http://localhost:3001` en tu navegador (o la URL donde despliegues el servidor).
+3. Abre `http://localhost:3001` en tu navegador (sustituye 3001 si configuraste otro puerto).
    Las páginas cargan Bootstrap desde jsDelivr para que funcionen aun si no instalas nada adicional.
 
 Para verificar el envío de correos puedes ejecutar:
@@ -32,6 +32,31 @@ Puedes construir una imagen y ejecutar el servidor en un contenedor con:
 ```bash
 docker build -t terraza .
 docker run -p 3001:3001 terraza
+```
+
+## Nginx y HTTPS
+
+En producción suele colocarse un proxy inverso delante del contenedor. Un bloque
+básico de Nginx para reenviar el tráfico al puerto configurado podría verse así:
+
+```nginx
+server {
+    listen 80;
+    server_name terraza.example.com;
+
+    location / {
+        proxy_pass http://localhost:3001; # usa el puerto que hayas expuesto
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+Tras instalar `certbot` puedes activar un certificado SSL gratuito (Let's Encrypt)
+y redirigir todas las peticiones a HTTPS con:
+
+```bash
+sudo certbot --nginx -d terraza.example.com --redirect
 ```
 
 ## Características
