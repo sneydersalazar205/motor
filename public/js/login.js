@@ -2,6 +2,7 @@
 // Displays stored reservations in a modal after simple credential check
 
 let calendar;
+let modalCalendar;
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
@@ -23,15 +24,17 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadDashboard() {
   try {
     const reservas = await fetch('/api/reservations').then(r => r.json());
-    renderCalendar(reservas);
+    renderCalendar(reservas, 'calendar');
+    renderCalendar(reservas, 'reservCalendar');
     renderReservas(reservas);
   } catch (err) {
     console.error(err);
   }
 }
 
-function renderCalendar(reservas) {
-  const el = document.getElementById('calendar');
+function renderCalendar(reservas, target) {
+  const el = document.getElementById(target);
+  if (!el) return;
   const events = reservas
     .filter(r => r.status !== 'cancelled')
     .map(r => ({
@@ -39,17 +42,25 @@ function renderCalendar(reservas) {
       display: 'background',
       backgroundColor: r.status === 'confirmed' ? 'red' : 'green'
     }));
-  if (!calendar) {
-    calendar = new FullCalendar.Calendar(el, {
+  let instance = target === 'calendar' ? calendar : modalCalendar;
+  if (!instance) {
+    instance = new FullCalendar.Calendar(el, {
       initialView: 'dayGridMonth',
       events
     });
-    calendar.render();
+    instance.render();
+    if (target === 'calendar') {
+      calendar = instance;
+    } else {
+      modalCalendar = instance;
+    }
   } else {
-    calendar.removeAllEvents();
-    events.forEach(ev => calendar.addEvent(ev));
+    instance.removeAllEvents();
+    events.forEach(ev => instance.addEvent(ev));
   }
-  document.getElementById('calendarWrap').style.display = 'block';
+  if (target === 'calendar') {
+    document.getElementById('calendarWrap').style.display = 'block';
+  }
 }
 
 function renderReservas(reservas) {
