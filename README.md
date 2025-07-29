@@ -18,6 +18,14 @@ reservaciones y enviar correos de confirmación.
 3. Abre `http://localhost:3001` en tu navegador (sustituye 3001 si configuraste otro puerto).
    Las páginas cargan Bootstrap desde jsDelivr para que funcionen aun si no instalas nada adicional.
 
+Para trabajar en Visual Studio Code:
+1. Abre la carpeta del repositorio en VS Code.
+2. Abre una terminal integrada con `Ctrl+` o `Terminal > New Terminal`.
+3. Ejecuta `npm install` si es la primera vez.
+4. Inicia el servidor con `PORT=3001 npm start` (o el puerto que prefieras).
+5. Copia o haz clic en la URL que aparezca en la terminal para abrirla en tu navegador.
+6. Detén el servidor con `Ctrl+C` cuando termines.
+
 Para verificar el envío de correos puedes ejecutar:
 ```bash
 npm test
