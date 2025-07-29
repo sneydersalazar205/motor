@@ -13,7 +13,7 @@ Module._load = function(request, parent, isMain) {
   }
   if (request === 'express') {
     const fn = function() {
-      return { use() {}, post() {}, get() {}, listen() {} };
+      return { use() {}, post() {}, get() {}, patch() {}, listen() {} };
     };
     fn.json = () => (req,res,next)=>{ if(next) next(); };
     fn.static = () => (req,res,next)=>{ if(next) next(); };

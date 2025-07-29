@@ -39,8 +39,16 @@
       <input type="email" class="form-control" id="email" required>
     </div>
     <div class="mb-3">
+      <label for="phone" class="form-label">Teléfono</label>
+      <input type="tel" class="form-control" id="phone" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric">
+    </div>
+    <div class="mb-3">
       <label for="details" class="form-label">Detalles del Evento</label>
       <textarea id="details" class="form-control" required></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="time" class="form-label">Hora</label>
+      <input type="time" class="form-control" id="time" required>
     </div>
     <input type="hidden" id="date">
     <button type="submit" class="btn btn-primary">Reservar</button>

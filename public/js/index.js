@@ -21,8 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({
             name: data.nombre + ' ' + data.apellidos,
             email: data.correo,
+            phone: data.telefono,
             details: data.evento + ' ' + (data.observaciones || ''),
-            date: data.fecha + ' ' + data.hora,
+            date: data.fecha + 'T' + data.hora,
           }),
         });
         alert('Reserva enviada con éxito a: ' + data.correo);

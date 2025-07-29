@@ -137,7 +137,7 @@
               <input type="text" name="nombre" placeholder="Nombre" class="form-control mb-2" required>
               <input type="text" name="apellidos" placeholder="Apellidos" class="form-control mb-2" required>
               <input type="text" name="evento" placeholder="Descripción del evento" class="form-control mb-2">
-              <input type="tel" name="telefono" placeholder="Teléfono" class="form-control mb-2" required>
+              <input type="tel" name="telefono" placeholder="Teléfono" class="form-control mb-2" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric">
               <input type="email" id="correoUsuario" name="correo" placeholder="Correo electrónico" class="form-control mb-2" required>
               <textarea name="observaciones" placeholder="Observaciones" class="form-control mb-2"></textarea>
               <input type="date" name="fecha" class="form-control mb-2" required>

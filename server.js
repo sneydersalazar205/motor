@@ -18,19 +18,31 @@ function saveReservations(list) {
   fs.writeFileSync(RES_FILE, JSON.stringify(list, null, 2));
 }
 
+function hasConflict(list, dateStr) {
+  const target = new Date(dateStr).getTime();
+  const TWO_H = 2 * 60 * 60 * 1000;
+  return list.some(r => r.status !== 'cancelled' && Math.abs(new Date(r.date).getTime() - target) < TWO_H);
+}
 // Endpoint to create a reservation and send confirmation email
 // Create a reservation and send confirmation email
 app.post('/api/reservations', async (req, res, next) => {
   try {
-    const { name, email, details, date } = req.body;
-    if (!name || !email || !details || !date) {
+    const { name, email, phone, details, date } = req.body;
+    if (!name || !email || !phone || !details || !date) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
+    if (!/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ error: 'Teléfono inválido' });
+    }
     const list = readReservations();
-    list.push({ name, email, details, date });
+    if (hasConflict(list, date)) {
+      return res.status(400).json({ error: 'Horario no disponible' });
+    }
+    const item = { id: Date.now(), name, email, phone, details, date, status: 'pending' };
+    list.push(item);
     saveReservations(list);
     try {
-      await sendMail({ name, email, details, date });
+      await sendMail(item);
     } catch (err) {
       console.error('Email error:', err.message);
     }
@@ -43,6 +55,16 @@ app.post('/api/reservations', async (req, res, next) => {
 // Endpoint to retrieve reservations
 app.get('/api/reservations', (req, res) => {
   res.json(readReservations());
+});
+
+app.patch('/api/reservations/:id', (req, res) => {
+  const list = readReservations();
+  const id = Number(req.params.id);
+  const item = list.find(r => r.id === id);
+  if (!item) return res.status(404).json({ error: 'No encontrado' });
+  if (req.body.status) item.status = req.body.status;
+  saveReservations(list);
+  res.json(item);
 });
 
 async function sendMail(data) {
@@ -77,7 +99,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-module.exports = { app, sendMail };
+module.exports = { app, sendMail, hasConflict };
 
 if (require.main === module) {
   app.listen(PORT, () => {

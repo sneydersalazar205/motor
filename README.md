@@ -34,9 +34,15 @@ envío se ejecuta correctamente.
 - **Acceso miembros** (`login.html`): permite consultar las reservaciones
   almacenadas mediante un modal.
 
-El servidor valida que los campos `name`, `email`, `details` y `date` estén
-presentes antes de registrar la reservación. Si falta alguno, responde con un
-mensaje de error y código `400`.
+
+El servidor valida que los campos `name`, `email`, `phone`, `details` y `date`
+estén presentes antes de registrar la reservación. El teléfono debe contener
+exactamente diez dígitos. Además comprueba que no exista otra reservación en el
+mismo horario (los eventos duran dos horas). Si hay conflicto se devuelve un
+mensaje de error con código `400`.
+
+Desde el panel de acceso para integrantes es posible confirmar o cancelar cada
+reservación. Al cancelar una reserva el horario queda disponible nuevamente.
 
 Para personalizar el envío de correos puedes establecer las variables de entorno
 `SMTP_HOST`, `SMTP_USER` y `SMTP_PASS`. Si no las configuras se utilizarán los

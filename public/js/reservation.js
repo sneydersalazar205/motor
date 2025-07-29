@@ -21,9 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = {
         name: document.getElementById('name').value,
         email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
         details: document.getElementById('details').value,
-        date: document.getElementById('date').value,
-      };
+        date: document.getElementById('date').value + 'T' + document.getElementById('time').value,
+    };
       try {
         // Envía los datos al servidor para guardar y enviar el correo
         await fetch('/api/reservations', {

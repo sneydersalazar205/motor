@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "node test/sendMail.test.js",
+    "test": "node test/sendMail.test.js && node test/conflict.test.js",
     "start": "node server.js"
   },
   "keywords": [],
