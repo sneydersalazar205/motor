@@ -42,6 +42,7 @@ docker build -t terraza .
 docker run -p 3001:3001 terraza
 ```
 
+
 También puedes levantar el proyecto con **docker-compose** usando el archivo
 `docker-compose.yml` incluido:
 
