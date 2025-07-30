@@ -1,10 +1,11 @@
 // Logic for reservation page
 // Initializes FullCalendar and submits reservation data to the server
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const calendarEl = document.getElementById('calendar');
+  let calendar;
   if (calendarEl) {
-    const calendar = new FullCalendar.Calendar(calendarEl, {
+    calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
       dateClick: info => {
         document.getElementById('date').value = info.dateStr;
@@ -12,6 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
       },
     });
     calendar.render();
+    try {
+      const reservas = await fetch('/api/reservations').then(r => r.json());
+      const events = reservas
+        .filter(r => r.status !== 'cancelled')
+        .map(r => ({
+          start: r.date,
+          display: 'background',
+          backgroundColor: r.status === 'confirmed' ? 'red' : 'green'
+        }));
+      calendar.addEventSource(events);
+    } catch (err) {
+      console.error('Error loading events', err);
+    }
   }
 
   const reservationForm = document.getElementById('reservationForm');
