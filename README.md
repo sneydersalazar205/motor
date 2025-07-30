@@ -42,6 +42,16 @@ docker build -t terraza .
 docker run -p 3001:3001 terraza
 ```
 
+También puedes levantar el proyecto con **docker-compose** usando el archivo
+`docker-compose.yml` incluido:
+
+```bash
+docker compose up
+```
+
+De manera predeterminada expone el puerto `3001` y monta `reservations.json`
+para que las reservas persistan. Establece `PORT` si quieres usar otro valor.
+
 ## Nginx y HTTPS
 
 En producción suele colocarse un proxy inverso delante del contenedor. Un bloque
