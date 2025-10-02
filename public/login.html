@@ -7,6 +7,9 @@
     <!-- CSS Bootstrap CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- ELIMINA ESTA LÍNEA: //or -->
+    <!-- ELIMINA ESTA LÍNEA: <script src="https://unpkg.com/@supabase/supabase-js@2"></script> -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,11 +29,21 @@
     </div>
   </div>
 </nav>
+
+<!-- ⬇️⬇️⬇️ AGREGA ESTA NUEVA SECCIÓN JUSTO DESPUÉS DEL NAV ⬇️⬇️⬇️ -->
+<div id="user-info-bar" style="display: none;" class="bg-primary text-white p-2">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span>👤 Conectado como: <span id="user-email">usuario@ejemplo.com</span></span>
+    <button id="logout-btn" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
+  </div>
+</div>
+<!-- ⬆️⬆️⬆️ FIN DE LA NUEVA SECCIÓN ⬆️⬆️⬆️ -->
+
 <div class="container mt-5" style="max-width:400px;">
   <h2>Acceso Solo Miembros</h2>
   <form id="loginForm">
     <div class="mb-3">
-      <label for="username" class="form-label">Usuario</label>
+      <label for="username" class="form-label">Usuario o Email</label> <!-- CAMBIÉ EL LABEL -->
       <input type="text" class="form-control" id="username" required>
     </div>
     <div class="mb-3">
@@ -38,25 +51,52 @@
       <input type="password" class="form-control" id="password" required>
     </div>
     <button type="submit" class="btn btn-primary">Entrar</button>
+    
+    <!-- ⬇️⬇️⬇️ AGREGA ESTA NUEVA SECCIÓN DENTRO DEL FORM ⬇️⬇️⬇️ -->
+    <div class="mt-3">
+      <small class="text-muted">
+        Usa <code>banda</code> / <code>musica</code> para acceso rápido, 
+        o tu email y contraseña de Supabase.
+      </small>
+    </div>
+    <!-- ⬆️⬆️⬆️ FIN DE LA NUEVA SECCIÓN ⬆️⬆️⬆️ -->
+    
   </form>
 </div>
+
+<!-- ⬇️⬇️⬇️ MODIFICA ESTA SECCIÓN EXISTENTE - AGREGA CLASES Y ESTILOS ⬇️⬇️⬇️ -->
 <div class="container mt-4" id="calendarWrap" style="display:none;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Calendario de Reservas</h3>
+    <button class="btn btn-info btn-sm" onclick="refreshCalendar()">🔄 Actualizar</button>
+  </div>
   <div id="calendar"></div>
 </div>
+<!-- ⬆️⬆️⬆️ FIN DE LA MODIFICACIÓN ⬆️⬆️⬆️ -->
+
 <!-- Modal -->
 <div class="modal fade" id="reservModal" tabindex="-1" aria-labelledby="reservLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg"> <!-- CAMBIÉ A modal-lg para más espacio -->
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="reservLabel">Detalles de Reservación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header bg-dark text-white"> <!-- AGREGUE ESTILOS -->
+        <h5 class="modal-title" id="reservLabel">📅 Detalles de Reservaciones</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div id="reservDetails"></div>
-        <div id="reservCalendar" class="mt-3"></div>
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Lista de Reservas</h6>
+            <div id="reservDetails" style="max-height: 400px; overflow-y: auto;"></div>
+          </div>
+          <div class="col-md-6">
+            <h6>Vista Previa Calendario</h6>
+            <div id="reservCalendar" class="mt-3"></div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" onclick="loadDashboard()">Actualizar Lista</button>
       </div>
     </div>
   </div>
