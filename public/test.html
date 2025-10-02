@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Terraza Roja</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test de Funcionalidades Terraza Roja</h1>
+  
+  <div class="test-section">
+    <h2>1. Conexión a Supabase</h2>
+    <button id="test-connection">Probar Conexión</button>
+    <div id="connection-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>2. Crear Reserva</h2>
+    <button id="test-reservation">Crear Reserva de Prueba</button>
+    <div id="reservation-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>3. Leer Reservas</h2>
+    <button id="test-read-reservations">Leer Reservas</button>
+    <div id="read-reservations-result"></div>
+  </div>
+  
+  <div class="test-section">
+    <h2>4. Actualizar Reserva</h2>
+    <button id="test-update-reservation">Actualizar Última Reserva</button>
+    <div id="update-reservation-result"></div>
+  </div>
+
+  <script>
+    // Configuración de Supabase
+    const SUPABASE_URL = 'https://vllouqgqmdovgqpicyat.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbG91cWdxbWRvdmdxcGljeWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNjAxMTgsImV4cCI6MjA3NDkzNjExOH0.NE6aJ-oQjDoMqOeEfQlcT3dKyzhRQVTLYZgnxIX87HY';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Test de conexión
+    document.getElementById('test-connection').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('connection-result');
+      resultDiv.innerHTML = 'Probando conexión...';
+      
+      try {
+        const { data, error } = await supabase.from('reservations').select('count');
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+        } else {
+          resultDiv.innerHTML = `<span class="success">✓ Conexión exitosa a Supabase</span>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test de creación de reserva
+    document.getElementById('test-reservation').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('reservation-result');
+      resultDiv.innerHTML = 'Creando reserva...';
+      
+      try {
+        const testData = {
+          nombre: 'Test',
+          apellidos: 'Usuario',
+          correo: 'test@example.com',
+          telefono: '1234567890',
+          evento: 'Evento de prueba',
+          observaciones: 'Esta es una reserva de prueba',
+          fecha: '2024-12-31',
+          hora: '20:00',
+          fecha_completa: '2024-12-31T20:00',
+          estado: 'pendiente',
+          tipo_tarifa: 'basico'
+        };
+        
+        const { data, error } = await supabase
+          .from('reservations')
+          .insert([testData])
+          .select();
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+        } else {
+          resultDiv.innerHTML = `<span class="success">✓ Reserva creada exitosamente. ID: ${data[0].id}</span>`;
+          // Guardar el ID para pruebas posteriores
+          localStorage.setItem('testReservationId', data[0].id);
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test de lectura de reservas
+    document.getElementById('test-read-reservations').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('read-reservations-result');
+      resultDiv.innerHTML = 'Leyendo reservas...';
+      
+      try {
+        const { data, error } = await supabase
+          .from('reservations')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+        } else {
+          if (data.length === 0) {
+            resultDiv.innerHTML = '<span class="error">No hay reservas</span>';
+          } else {
+            resultDiv.innerHTML = `
+              <span class="success">✓ ${data.length} reservas encontradas</span>
+              <ul>
+                ${data.map(reserva => `
+                  <li>${reserva.nombre} ${reserva.apellidos} - ${reserva.fecha} ${reserva.hora} (${reserva.estado})</li>
+                `).join('')}
+              </ul>
+            `;
+          }
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test de actualización de reserva
+    document.getElementById('test-update-reservation').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('update-reservation-result');
+      resultDiv.innerHTML = 'Actualizando reserva...';
+      
+      try {
+        // Obtener el ID de la reserva de prueba
+        const testReservationId = localStorage.getItem('testReservationId');
+        
+        if (!testReservationId) {
+          resultDiv.innerHTML = '<span class="error">Primero crea una reserva de prueba</span>';
+          return;
+        }
+        
+        const { data, error } = await supabase
+          .from('reservations')
+          .update({ 
+            estado: 'confirmada',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', testReservationId)
+          .select();
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+        } else {
+          resultDiv.innerHTML = `<span class="success">✓ Reserva actualizada exitosamente. Nuevo estado: ${data[0].estado}</span>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+      }
+    });
+  </script>
+</body>
+</html>

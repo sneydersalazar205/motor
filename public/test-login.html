@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Completo - Terraza Roja</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    .success { color: green; }
+    .error { color: red; }
+    button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .user-card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 5px; }
+    .step { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🧪 TEST COMPLETO - Terraza Roja</h1>
+  
+  <div class="step">
+    <h3>📋 INSTRUCCIONES:</h3>
+    <ol>
+      <li>Ejecuta el SQL corregido en Supabase</li>
+      <li>Crea los usuarios en Authentication</li>
+      <li>Ejecuta los tests en orden</li>
+    </ol>
+  </div>
+
+  <div class="grid">
+    <!-- PASO 1: Verificar Base de Datos -->
+    <div class="test-section">
+      <h2>1. 🗄️ Base de Datos</h2>
+      <button onclick="testDatabase()">Verificar Tablas y Columnas</button>
+      <button onclick="testRLS()">Verificar Políticas RLS</button>
+      <div id="db-result"></div>
+    </div>
+    
+    <!-- PASO 2: Verificar Authentication -->
+    <div class="test-section">
+      <h2>2. 🔐 Authentication</h2>
+      <button onclick="testAuthAdmin()">Test Admin</button>
+      <button onclick="testAuthBanda()">Test Banda</button>
+      <div id="auth-result"></div>
+    </div>
+    
+    <!-- PASO 3: Test de Solicitudes -->
+    <div class="test-section">
+      <h2>3. 📝 Solicitudes</h2>
+      <button onclick="createTestRequest()">Crear Solicitud</button>
+      <button onclick="listRequests()">Listar Solicitudes</button>
+      <div id="requests-result"></div>
+    </div>
+    
+    <!-- PASO 4: Test de Usuarios -->
+    <div class="test-section">
+      <h2>4. 👥 Usuarios</h2>
+      <button onclick="listUsers()">Listar User_Profiles</button>
+      <button onclick="testAll()">Test Completo</button>
+      <div id="users-result"></div>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>5. 📊 Resultado Final</h2>
+    <button onclick="runFullTest()">🎯 EJECUTAR TEST COMPLETO</button>
+    <div id="final-result"></div>
+  </div>
+
+<script>
+const SUPABASE_URL = 'https://vllouqgqmdovgqpicyat.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbG91cWdxbWRvdmdxcGljeWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNjAxMTgsImV4cCI6MjA3NDkzNjExOH0.NE6aJ-oQjDoMqOeEfQlcT3dKyzhRQVTLYZgnxIX87HY';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 1. Test de Base de Datos
+async function testDatabase() {
+  const resultDiv = document.getElementById('db-result');
+  resultDiv.innerHTML = '🔍 Verificando base de datos...';
+  
+  try {
+    // Verificar columnas de registration_requests
+    const { data: requests, error: reqError } = await supabase
+      .from('registration_requests')
+      .select('*')
+      .limit(1);
+    
+    if (reqError) throw new Error(`registration_requests: ${reqError.message}`);
+    
+    // Verificar columnas existentes
+    if (requests.length > 0) {
+      const columns = Object.keys(requests[0]);
+      const hasPassword = columns.includes('password');
+      
+      resultDiv.innerHTML = `
+        <div class="success">✅ Tabla registration_requests OK</div>
+        <div>Columnas: ${columns.join(', ')}</div>
+        <div>¿Tiene columna 'password'? ${hasPassword ? '✅ SÍ' : '❌ NO'}</div>
+        <div>Registros: ${await countRecords('registration_requests')}</div>
+      `;
+    } else {
+      resultDiv.innerHTML = `<div class="success">✅ Tabla registration_requests OK (vacía)</div>`;
+    }
+    
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+  }
+}
+
+// 2. Test de RLS
+async function testRLS() {
+  const resultDiv = document.getElementById('db-result');
+  resultDiv.innerHTML = '🔐 Probando políticas RLS...';
+  
+  try {
+    // Intentar crear una solicitud (debería funcionar con RLS permisivo)
+    const testData = {
+      nombres: 'Test',
+      apellidos: 'RLS',
+      correo: 'test.rls' + Date.now() + '@test.com',
+      nombre_usuario: 'testrls' + Date.now(),
+      password: 'test123',
+      tipo_usuario: 'banda'
+    };
+    
+    const { data, error } = await supabase
+      .from('registration_requests')
+      .insert([testData])
+      .select();
+    
+    if (error) {
+      resultDiv.innerHTML = `<div class="error">❌ RLS está bloqueando: ${error.message}</div>`;
+    } else {
+      resultDiv.innerHTML = `
+        <div class="success">✅ RLS configurado correctamente</div>
+        <div>✅ Se pudo crear registro: ${data[0].correo}</div>
+      `;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="error">❌ Error RLS: ${err.message}</div>`;
+  }
+}
+
+// 3. Test de Authentication
+async function testAuthAdmin() {
+  const resultDiv = document.getElementById('auth-result');
+  resultDiv.innerHTML = '🔑 Probando login admin...';
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: 'admin@terrazaroja.com',
+      password: 'admin123'
+    });
+    
+    if (error) {
+      resultDiv.innerHTML = `
+        <div class="error">❌ Login admin falló: ${error.message}</div>
+        <div>⚠️ Asegúrate de crear el usuario en Supabase → Authentication → Users</div>
+      `;
+    } else {
+      resultDiv.innerHTML = `
+        <div class="success">✅ Login admin exitoso</div>
+        <div>Usuario: ${data.user.email}</div>
+        <div>ID: ${data.user.id}</div>
+      `;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+  }
+}
+
+async function testAuthBanda() {
+  const resultDiv = document.getElementById('auth-result');
+  resultDiv.innerHTML = '🎸 Probando login banda...';
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: 'banda@terrazaroja.com',
+      password: 'musica123'
+    });
+    
+    if (error) {
+      resultDiv.innerHTML = `<div class="error">❌ Login banda falló: ${error.message}</div>`;
+    } else {
+      resultDiv.innerHTML = `
+        <div class="success">✅ Login banda exitoso</div>
+        <div>Usuario: ${data.user.email}</div>
+      `;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+  }
+}
+
+// 4. Test de Solicitudes
+async function createTestRequest() {
+  const resultDiv = document.getElementById('requests-result');
+  resultDiv.innerHTML = '📝 Creando solicitud de prueba...';
+  
+  try {
+    const testData = {
+      nombres: 'Carlos',
+      apellidos: 'Rodríguez',
+      correo: 'carlos.rodriguez' + Date.now() + '@test.com',
+      nombre_usuario: 'carlosrod' + Date.now(),
+      password: 'password123',
+      telefono: '1234567890',
+      tipo_usuario: 'banda',
+      mensaje_solicitud: 'Solicitud de prueba del sistema'
+    };
+    
+    const { data, error } = await supabase
+      .from('registration_requests')
+      .insert([testData])
+      .select();
+    
+    if (error) {
+      resultDiv.innerHTML = `
+        <div class="error">❌ Error creando solicitud: ${error.message}</div>
+        <div>⚠️ Posibles problemas:</div>
+        <ul>
+          <li>Columna 'password' no existe</li>
+          <li>RLS está bloqueando</li>
+          <li>Email o usuario ya existen</li>
+        </ul>
+      `;
+    } else {
+      resultDiv.innerHTML = `
+        <div class="success">✅ Solicitud creada exitosamente</div>
+        <div class="user-card">
+          <strong>${data[0].nombres} ${data[0].apellidos}</strong><br>
+          Email: ${data[0].correo}<br>
+          Usuario: ${data[0].nombre_usuario}<br>
+          Estado: ${data[0].estado}
+        </div>
+      `;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+  }
+}
+
+async function listRequests() {
+  const resultDiv = document.getElementById('requests-result');
+  resultDiv.innerHTML = '📋 Cargando solicitudes...';
+  
+  try {
+    const { data: requests, error } = await supabase
+      .from('registration_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    
+    if (error) throw error;
+    
+    if (requests.length === 0) {
+      resultDiv.innerHTML = '<div class="error">No hay solicitudes</div>';
+    } else {
+      resultDiv.innerHTML = `
+        <div class="success">✅ ${requests.length} solicitudes encontradas</div>
+        ${requests.map(req => `
+          <div class="user-card">
+            <strong>${req.nombres} ${req.apellidos}</strong><br>
+            Email: ${req.correo} | Usuario: ${req.nombre_usuario}<br>
+            Estado: <span style="color: ${
+              req.estado === 'aprobado' ? 'green' : 
+              req.estado === 'rechazado' ? 'red' : 'orange'
+            }">${req.estado}</span><br>
+            Fecha: ${new Date(req.created_at).toLocaleDateString()}
+          </div>
+        `).join('')}
+      `;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+  }
+}
+
+// 5. Test de Usuarios
+async function listUsers() {
+  const resultDiv = document.getElementById('users-result');
+  resultDiv.innerHTML = '👥 Cargando user_profiles...';
+  
+  try {
+    const { data: users, error } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .limit(10);
+    
+    if (error) throw error;
+    
+    if (users.length === 0) {
+      resultDiv.innerHTML = `
+        <div class="error">No hay usuarios en user_profiles</div>
+        <div>ℹ️ Esta tabla se llena cuando se aprueban solicitudes</div>
+      `;
+    } else {
+      resultDiv.innerHTML = `
+        <div class="success">✅ ${users.length} usuarios encontrados</div>
+        ${users.map(user => `
+          <div class="user-card">
+            <strong>${user.nombres} ${user.apellidos}</strong><br>
+            Usuario: ${user.nombre_usuario}<br>
+            Tipo: ${user.tipo_usuario}<br>
+            Activo: ${user.activo ? '✅ Sí' : '❌ No'}
+          </div>
+        `).join('')}
+      `;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+  }
+}
+
+// 6. Test Completo
+async function runFullTest() {
+  const resultDiv = document.getElementById('final-result');
+  resultDiv.innerHTML = '🎯 Ejecutando test completo...<br>';
+  
+  const tests = [
+    { name: 'Conexión a Supabase', fn: testConnection },
+    { name: 'Tabla registration_requests', fn: testRequestsTable },
+    { name: 'Tabla user_profiles', fn: testProfilesTable },
+    { name: 'Políticas RLS', fn: testRLSPolicies },
+    { name: 'Login Admin', fn: testAdminLogin },
+    { name: 'Login Banda', fn: testBandaLogin },
+    { name: 'Crear Solicitud', fn: testCreateRequest }
+  ];
+  
+  let allPassed = true;
+  let results = [];
+  
+  for (let test of tests) {
+    try {
+      const result = await test.fn();
+      results.push({ name: test.name, status: '✅ PASÓ', details: result });
+      resultDiv.innerHTML += `<div style="color: green;">✅ ${test.name} - PASÓ</div>`;
+    } catch (error) {
+      allPassed = false;
+      results.push({ name: test.name, status: '❌ FALLÓ', details: error.message });
+      resultDiv.innerHTML += `<div style="color: red;">❌ ${test.name} - FALLÓ: ${error.message}</div>`;
+    }
+  }
+  
+  resultDiv.innerHTML += `<br><strong>RESULTADO FINAL: ${allPassed ? '🎉 TODOS LOS TESTS PASARON' : '❌ ALGUNOS TESTS FALLARON'}</strong>`;
+}
+
+// Funciones auxiliares para el test completo
+async function testConnection() {
+  const { data, error } = await supabase.from('registration_requests').select('count');
+  if (error) throw error;
+  return 'Conexión exitosa';
+}
+
+async function testRequestsTable() {
+  const { data, error } = await supabase.from('registration_requests').select('*').limit(1);
+  if (error) throw error;
+  
+  // Verificar que tenga la columna password
+  if (data.length > 0 && !data[0].hasOwnProperty('password')) {
+    throw new Error('Falta la columna "password"');
+  }
+  
+  return 'Tabla y columnas correctas';
+}
+
+async function testProfilesTable() {
+  const { data, error } = await supabase.from('user_profiles').select('*').limit(1);
+  if (error && !error.message.includes('resulted in zero rows')) throw error;
+  return 'Tabla existe (puede estar vacía)';
+}
+
+async function testRLSPolicies() {
+  const testData = {
+    nombres: 'Test', apellidos: 'RLS', 
+    correo: 'test' + Date.now() + '@test.com',
+    nombre_usuario: 'test' + Date.now(),
+    password: 'test123', tipo_usuario: 'banda'
+  };
+  
+  const { error } = await supabase.from('registration_requests').insert([testData]);
+  if (error) throw new Error(`RLS bloquea inserts: ${error.message}`);
+  return 'Políticas RLS correctas';
+}
+
+async function testAdminLogin() {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: 'admin@terrazaroja.com', password: 'admin123'
+  });
+  if (error) throw new Error(`Login admin falló: ${error.message}`);
+  await supabase.auth.signOut();
+  return 'Login admin exitoso';
+}
+
+async function testBandaLogin() {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: 'banda@terrazaroja.com', password: 'musica123'
+  });
+  if (error) throw new Error(`Login banda falló: ${error.message}`);
+  await supabase.auth.signOut();
+  return 'Login banda exitoso';
+}
+
+async function testCreateRequest() {
+  const testData = {
+    nombres: 'Test', apellidos: 'Final', 
+    correo: 'test.final' + Date.now() + '@test.com',
+    nombre_usuario: 'testfinal' + Date.now(),
+    password: 'test123', tipo_usuario: 'banda'
+  };
+  
+  const { error } = await supabase.from('registration_requests').insert([testData]);
+  if (error) throw new Error(`Crear solicitud falló: ${error.message}`);
+  return 'Solicitud creada exitosamente';
+}
+
+// Función para contar registros
+async function countRecords(tableName) {
+  const { data, error } = await supabase.from(tableName).select('count');
+  if (error) return 'Error';
+  return data[0].count;
+}
+
+async function testAll() {
+  await runFullTest();
+}
+</script>
+</body>
+</html>

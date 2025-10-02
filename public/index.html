@@ -7,9 +7,26 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  //or
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .anton-font {
+      font-family: 'Anton', sans-serif;
+    }
+    .carousel-caption {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 5px;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      transition: transform 0.3s;
+    }
+    .navbar-brand {
+      font-family: 'Anton', sans-serif;
+      font-size: 1.8rem;
+    }
+  </style>
 </head>
 <body class="bg-light text-dark">
   <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
@@ -26,17 +43,17 @@
           <li class="nav-item"><a class="nav-link" href="#Videos">Videos</a></li>
           <li class="nav-item"><a class="nav-link" href="#Tarifas">Tarifas</a></li>
           <li class="nav-item"><a class="nav-link" href="#Contacto">Contáctanos</a></li>
-          <li class="nav-item"><a class="nav-link" href="/reservation.html">Calendario</a></li>
-          <li class="nav-item"><a class="nav-link" href="/login.html">Acceso Banda</a></li>
+          <li class="nav-item"><a class="nav-link" href="reservation.html">Calendario</a></li>
+          <li class="nav-item"><a class="nav-link" href="login.html">Acceso Banda</a></li>
         </ul>
-        <button id="theme-toggle" class="btn ms-3" style="background-color:#000;color:#dc3545;border:2px solid #dc3545;">Tema</button>
+        <button id="theme-toggle" class="btn ms-3" style="background-color:#000;color:#1a0e0f;border:2px solid #dc3545;">Tema</button>
       </div>
     </div>
   </nav>
 
   <section id="Inicio" class="bg-danger text-white text-center py-5">
     <div class="container">
-      <h1 class="display-1">Terraza Roja</h1>
+      <h1 class="display-1 anton-font">Terraza Roja</h1>
       <h2 class="lead">Vive los momentos y vive la vida</h2>
     </div>
   </section>
@@ -44,7 +61,7 @@
   <section id="Nosotros" class="py-5">
     <div class="container">
       <h3 class="text-danger">¿Cómo inició la vaina?</h3>
-      <h1 class="text-danger">Historia</h1>
+      <h1 class="text-danger anton-font">Historia</h1>
       <p class="fs-5">
         <strong>La historia de Terraza Roja comenzó como muchas grandes ideas</strong>:
         en una noche cualquiera, entre amigos, guitarras y ganas de cantar. Todo empezó
@@ -57,7 +74,7 @@
 
   <section id="Referencias" class="py-5 bg-light">
     <div class="container">
-      <h1 class="mb-4 text-center text-danger">Referencias</h1>
+      <h1 class="mb-4 text-center text-danger anton-font">Referencias</h1>
       <div id="referenciasCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item active">
@@ -96,7 +113,7 @@
 
   <section id="Videos" class="py-5 bg-white">
     <div class="container">
-      <h1 class="mb-4 text-center text-danger">Videos</h1>
+      <h1 class="mb-4 text-center text-danger anton-font">Videos</h1>
       <div class="row justify-content-center g-4">
         <div class="col-md-6">
           <div class="ratio ratio-16x9">
@@ -114,7 +131,7 @@
 
   <section id="Tarifas" class="py-5 bg-white">
     <div class="container">
-      <h1 class="mb-4 text-center text-danger">Tarifas</h1>
+      <h1 class="mb-4 text-center text-danger anton-font">Tarifas</h1>
       <div class="row g-4">
         <div class="col-md-4">
           <div class="card h-100 border-danger shadow-sm">
@@ -122,7 +139,7 @@
               <h5 class="card-title text-danger">Básico</h5>
               <p class="card-text">Acceso a terraza y bebidas no alcohólicas.</p>
               <p class="fs-3">$10.000</p>
-              <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservaModal">Reservar</a>
+              <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservaModal" data-tarifa="basico">Reservar</a>
             </div>
           </div>
         </div>
@@ -132,7 +149,7 @@
               <h5 class="card-title text-danger">Intermedio</h5>
               <p class="card-text">Incluye 2 bebidas alcohólicas y música en vivo.</p>
               <p class="fs-3">$20.000</p>
-              <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservaModal">Reservar</a>
+              <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservaModal" data-tarifa="intermedio">Reservar</a>
             </div>
           </div>
         </div>
@@ -142,7 +159,7 @@
               <h5 class="card-title text-danger">Premium</h5>
               <p class="card-text">Mesa VIP + botella premium.</p>
               <p class="fs-3">$50.000</p>
-              <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservaModal">Reservar</a>
+              <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reservaModal" data-tarifa="premium">Reservar</a>
             </div>
           </div>
         </div>
@@ -152,10 +169,11 @@
         <div class="modal-dialog">
           <form id="reservaForm" class="modal-content">
             <div class="modal-header bg-danger text-white">
-              <h5 class="modal-title">Reservar Banda</h5>
+              <h5 class="modal-title" id="modalTarifaTitle">Reservar Banda</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+              <input type="hidden" id="tarifaSeleccionada" name="tarifa" value="basico">
               <input type="text" name="nombre" placeholder="Nombre" class="form-control mb-2" required>
               <input type="text" name="apellidos" placeholder="Apellidos" class="form-control mb-2" required>
               <input type="text" name="evento" placeholder="Descripción del evento" class="form-control mb-2">

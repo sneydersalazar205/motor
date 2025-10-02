@@ -4,108 +4,700 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso Banda - Terraza Roja</title>
-    <!-- CSS Bootstrap CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- ELIMINA ESTA LÍNEA: //or -->
-    <!-- ELIMINA ESTA LÍNEA: <script src="https://unpkg.com/@supabase/supabase-js@2"></script> -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ============================================== */
+/* TEMA ROJO - TERRAZA ROJA */
+/* ============================================== */
+
+:root {
+    --rojo-principal: #dc3545;
+    --rojo-oscuro: #c82333;
+    --rojo-claro: #e4606d;
+    --gris-oscuro: #343a40;
+    --gris-claro: #f8f9fa;
+}
+
+/* Estilos generales con tema rojo */
+.bg-primary {
+    background-color: var(--rojo-principal) !important;
+}
+
+.btn-primary {
+    background-color: var(--rojo-principal);
+    border-color: var(--rojo-principal);
+}
+
+.btn-primary:hover {
+    background-color: var(--rojo-oscuro);
+    border-color: var(--rojo-oscuro);
+}
+
+.text-primary {
+    color: var(--rojo-principal) !important;
+}
+
+.border-primary {
+    border-color: var(--rojo-principal) !important;
+}
+
+/* Dashboard específico */
+.stats-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 10px;
+    border-left: 4px solid var(--rojo-principal);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15);
+}
+
+.stats-card.bg-primary {
+    background: linear-gradient(135deg, var(--rojo-principal), var(--rojo-oscuro)) !important;
+}
+
+.stats-card.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+}
+
+.stats-card.bg-success {
+    background: linear-gradient(135deg, #28a745, #218838) !important;
+}
+
+.stats-card.bg-secondary {
+    background: linear-gradient(135deg, #6c757d, #545b62) !important;
+}
+
+.calendar-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    border: 2px solid var(--rojo-principal);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);
+}
+
+.card-header.bg-light {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    color: var(--gris-oscuro) !important;
+    border-bottom: 2px solid var(--rojo-principal);
+}
+
+.card-header.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+    color: var(--gris-oscuro) !important;
+}
+
+.card-header.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    color: white !important;
+}
+
+/* Botones del dashboard */
+.btn-outline-primary {
+    color: var(--rojo-principal);
+    border-color: var(--rojo-principal);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--rojo-principal);
+    border-color: var(--rojo-principal);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745, #218838);
+    border: none;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    border: none;
+    color: var(--gris-oscuro);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    border: none;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border: none;
+}
+
+/* Eventos próximos */
+.upcoming-event-card {
+    border-left: 4px solid var(--rojo-principal);
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.upcoming-event-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.15);
+    border-left: 4px solid var(--rojo-oscuro);
+}
+
+/* Filtros */
+.form-select:focus {
+    border-color: var(--rojo-principal);
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-control:focus {
+    border-color: var(--rojo-principal);
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Badges con tema rojo */
+.badge.bg-primary {
+    background-color: var(--rojo-principal) !important;
+}
+
+/* Navbar del dashboard */
+#user-info-bar {
+    background: linear-gradient(135deg, var(--rojo-principal), var(--rojo-oscuro)) !important;
+    border-bottom: 2px solid var(--rojo-oscuro);
+}
+
+/* Modal headers */
+.modal-header.bg-dark {
+    background: linear-gradient(135deg, var(--gris-oscuro), #2c3034) !important;
+}
+
+/* Notificaciones */
+.alert-success {
+    border-left: 4px solid #28a745;
+}
+
+.alert-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.alert-danger {
+    border-left: 4px solid var(--rojo-principal);
+}
+
+.alert-info {
+    border-left: 4px solid #17a2b8;
+}
+
+/* Efectos hover para botones de acción */
+.quick-action-btn {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.quick-action-btn:hover {
+    transform: scale(1.05);
+    border-color: var(--rojo-principal);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-card .display-6 {
+        font-size: 1.5rem;
+    }
+    
+    .calendar-container {
+        padding: 10px;
+    }
+    
+    .btn-group {
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+    }
+}
+        .login-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: scale(1.05);
+        }
+        .calendar-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .event-confirmed { background-color: #28a745 !important; }
+        .event-pending { background-color: #ffc107 !important; }
+        .event-cancelled { background-color: #6c757d !important; }
+        .tab-content {
+            min-height: 300px;
+        }
+        .user-request-card {
+            border-left: 4px solid #ffc107;
+        }
+        .user-request-card.approved {
+            border-left-color: #28a745;
+        }
+        .user-request-card.rejected {
+            border-left-color: #dc3545;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/index.html">Terraza Roja</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <a class="navbar-brand" href="/index.html">🎸 Terraza Roja</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="/index.html#nosotros">Nosotros</a></li>
-        <li class="nav-item"><a class="nav-link" href="/index.html#referencias">Referencias</a></li>
-        <li class="nav-item"><a class="nav-link" href="/index.html">Inicio</a></li>
-        <li class="nav-item"><a class="nav-link" href="/reservation.html">Reservaciones</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#Nosotros">Nosotros</a></li>
+        <li class="nav-item"><a class="nav-link" href="reservation.html">Reservas</a></li>
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- ⬇️⬇️⬇️ AGREGA ESTA NUEVA SECCIÓN JUSTO DESPUÉS DEL NAV ⬇️⬇️⬇️ -->
-<div id="user-info-bar" style="display: none;" class="bg-primary text-white p-2">
+<!-- Barra de información del usuario -->
+<div id="user-info-bar" style="display: none;" class="bg-primary text-white p-2 shadow-sm">
   <div class="container d-flex justify-content-between align-items-center">
-    <span>👤 Conectado como: <span id="user-email">usuario@ejemplo.com</span></span>
-    <button id="logout-btn" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
+    <span>👤 Conectado como: <span id="user-email">usuario@ejemplo.com</span> | <span id="user-role"></span></span>
+    <div>
+      <button id="manage-users-btn" class="btn btn-warning btn-sm me-2" style="display: none;">👥 Gestionar Usuarios</button>
+      <button id="logout-btn" class="btn btn-outline-light btn-sm">🚪 Cerrar Sesión</button>
+    </div>
   </div>
 </div>
-<!-- ⬆️⬆️⬆️ FIN DE LA NUEVA SECCIÓN ⬆️⬆️⬆️ -->
 
-<div class="container mt-5" style="max-width:400px;">
-  <h2>Acceso Solo Miembros</h2>
-  <form id="loginForm">
-    <div class="mb-3">
-      <label for="username" class="form-label">Usuario o Email</label> <!-- CAMBIÉ EL LABEL -->
-      <input type="text" class="form-control" id="username" required>
-    </div>
-    <div class="mb-3">
-      <label for="password" class="form-label">Contraseña</label>
-      <input type="password" class="form-control" id="password" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Entrar</button>
-    
-    <!-- ⬇️⬇️⬇️ AGREGA ESTA NUEVA SECCIÓN DENTRO DEL FORM ⬇️⬇️⬇️ -->
-    <div class="mt-3">
-      <small class="text-muted">
-        Usa <code>banda</code> / <code>musica</code> para acceso rápido, 
-        o tu email y contraseña de Supabase.
-      </small>
-    </div>
-    <!-- ⬆️⬆️⬆️ FIN DE LA NUEVA SECCIÓN ⬆️⬆️⬆️ -->
-    
-  </form>
-</div>
+<!-- Formulario de Login -->
+<div class="login-container">
+  <div class="container" style="max-width: 500px;">
+    <div class="card shadow-lg card-hover">
+      <div class="card-body p-4">
+        <!-- Pestañas para Login y Registro -->
+        <ul class="nav nav-tabs mb-4" id="authTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button">
+              🔐 Iniciar Sesión
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button">
+              📝 Solicitar Acceso
+            </button>
+          </li>
+        </ul>
 
-<!-- ⬇️⬇️⬇️ MODIFICA ESTA SECCIÓN EXISTENTE - AGREGA CLASES Y ESTILOS ⬇️⬇️⬇️ -->
-<div class="container mt-4" id="calendarWrap" style="display:none;">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Calendario de Reservas</h3>
-    <button class="btn btn-info btn-sm" onclick="refreshCalendar()">🔄 Actualizar</button>
+        <div class="tab-content">
+          <!-- Tab de Login -->
+          <div class="tab-pane fade show active" id="login" role="tabpanel">
+            <div class="text-center mb-4">
+              <h5 class="card-title text-primary">🎵 Acceso al Sistema</h5>
+              <p class="text-muted">Ingresa con tus credenciales</p>
+            </div>
+            
+            <form id="loginForm">
+              <div class="mb-3">
+                <label for="username" class="form-label">📧 Email</label>
+                <input type="email" class="form-control" id="username" required 
+                       placeholder="tu-email@terrazaroja.com">
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">🔒 Contraseña</label>
+                <input type="password" class="form-control" id="password" required 
+                       placeholder="••••••••">
+              </div>
+              
+              <button type="submit" class="btn btn-primary w-100 py-2">
+                <span id="login-text">🎸 Entrar al Sistema</span>
+                <span id="login-loading" style="display: none;">⏳ Conectando...</span>
+              </button>
+            </form>
+
+            <!-- Credenciales de prueba -->
+            <div class="mt-4 p-3 bg-light rounded">
+              <h6 class="text-center mb-2">🧪 Credenciales de Prueba</h6>
+              <div class="row text-center">
+                <div class="col-6">
+                  <small class="text-muted d-block">Banda</small>
+                  <code class="small">banda@terrazaroja.com</code><br>
+                  <code class="small">musica123</code>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Admin</small>
+                  <code class="small">admin@terrazaroja.com</code><br>
+                  <code class="small">admin123</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab de Registro -->
+          <div class="tab-pane fade" id="register" role="tabpanel">
+            <div class="text-center mb-4">
+              <h5 class="card-title text-success">📝 Solicitar Acceso</h5>
+              <p class="text-muted">Completa el formulario para solicitar acceso al sistema</p>
+            </div>
+            
+            <form id="registerForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="reg-nombres" class="form-label">👤 Nombres</label>
+                  <input type="text" class="form-control" id="reg-nombres" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="reg-apellidos" class="form-label">👥 Apellidos</label>
+                  <input type="text" class="form-control" id="reg-apellidos" required>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="reg-email" class="form-label">📧 Email</label>
+                <input type="email" class="form-control" id="reg-email" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="reg-username" class="form-label">🔖 Nombre de Usuario</label>
+                <input type="text" class="form-control" id="reg-username" required>
+                <div class="form-text">Este será tu nombre de usuario para iniciar sesión</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="reg-password" class="form-label">🔒 Contraseña</label>
+                <input type="password" class="form-control" id="reg-password" required minlength="6">
+                <div class="form-text">Mínimo 6 caracteres</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="reg-confirm-password" class="form-label">✅ Confirmar Contraseña</label>
+                <input type="password" class="form-control" id="reg-confirm-password" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="reg-telefono" class="form-label">📞 Teléfono</label>
+                <input type="tel" class="form-control" id="reg-telefono">
+              </div>
+              
+              <div class="mb-3">
+                <label for="reg-tipo-usuario" class="form-label">🎵 Tipo de Usuario</label>
+                <select class="form-select" id="reg-tipo-usuario" required>
+                  <option value="banda">🎸 Banda/Músico</option>
+                  <option value="staff">👨‍💼 Staff/Organizador</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label for="reg-mensaje" class="form-label">💬 Mensaje de Solicitud</label>
+                <textarea class="form-control" id="reg-mensaje" rows="3" 
+                          placeholder="Explícanos por qué necesitas acceso al sistema..."></textarea>
+              </div>
+              
+              <button type="submit" class="btn btn-success w-100 py-2">
+                <span id="register-text">📨 Enviar Solicitud</span>
+                <span id="register-loading" style="display: none;">⏳ Enviando...</span>
+              </button>
+              
+              <div class="mt-3 text-center">
+                <small class="text-muted">
+                  ⚠️ Tu solicitud será revisada por un administrador. 
+                  Recibirás un email cuando sea aprobada.
+                </small>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Mensajes de estado -->
+        <div id="login-messages" class="mt-3"></div>
+      </div>
+    </div>
   </div>
-  <div id="calendar"></div>
 </div>
-<!-- ⬆️⬆️⬆️ FIN DE LA MODIFICACIÓN ⬆️⬆️⬆️ -->
 
-<!-- Modal -->
-<div class="modal fade" id="reservModal" tabindex="-1" aria-labelledby="reservLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"> <!-- CAMBIÉ A modal-lg para más espacio -->
+<!-- Dashboard Principal -->
+<div class="container mt-4" id="dashboard" style="display:none;">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header del Dashboard -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="text-primary">📊 Dashboard de Reservas</h2>
+          <p class="text-muted mb-0">Gestión completa de reservas de Terraza Roja</p>
+        </div>
+        <div>
+          <button class="btn btn-info btn-sm me-2" onclick="refreshCalendar()">
+            🔄 Actualizar
+          </button>
+          <button class="btn btn-success btn-sm" onclick="showReservationsModal()">
+            📋 Ver Todas las Reservas
+          </button>
+          <!-- Modal para Reservas -->
+<div class="modal fade" id="reservModal" tabindex="-1" aria-labelledby="reservModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="reservModalLabel">📋 Gestión de Reservas</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reservDetails">
+                    <!-- Aquí se cargarán las reservas dinámicamente -->
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando reservas...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="exportData()">📊 Exportar Datos</button>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+      </div>
+      
+      <!-- Estadísticas Rápidas -->
+      <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+          <div class="card stats-card bg-primary text-white shadow-sm">
+            <div class="card-body text-center">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 id="total-reservas" class="mb-0">0</h4>
+                  <p class="mb-0">📅 Total Reservas</p>
+                </div>
+                <div class="display-6">📊</div>
+              </div>
+              <div class="mt-2">
+                <small>Actualizado: <span id="last-update">--</span></small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card stats-card bg-warning text-dark shadow-sm">
+            <div class="card-body text-center">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 id="reservas-pendientes" class="mb-0">0</h4>
+                  <p class="mb-0">⏳ Pendientes</p>
+                </div>
+                <div class="display-6">⏰</div>
+              </div>
+              <div class="mt-2">
+                <small>Requieren atención</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card stats-card bg-success text-white shadow-sm">
+            <div class="card-body text-center">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 id="reservas-confirmadas" class="mb-0">0</h4>
+                  <p class="mb-0">✅ Confirmadas</p>
+                </div>
+                <div class="display-6">🎯</div>
+              </div>
+              <div class="mt-2">
+                <small>Listas para el evento</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card stats-card bg-secondary text-white shadow-sm">
+            <div class="card-body text-center">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 id="reservas-canceladas" class="mb-0">0</h4>
+                  <p class="mb-0">❌ Canceladas</p>
+                </div>
+                <div class="display-6">📉</div>
+              </div>
+              <div class="mt-2">
+                <small>Reservas anuladas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros Rápidos -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">🔍 Filtros Rápidos</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4 mb-2">
+              <label class="form-label">Estado</label>
+              <select class="form-select form-select-sm" id="filter-status" onchange="applyFilters()">
+                <option value="all">Todos los estados</option>
+                <option value="pendiente">⏳ Pendientes</option>
+                <option value="confirmada">✅ Confirmadas</option>
+                <option value="cancelada">❌ Canceladas</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-2">
+              <label class="form-label">Tipo de Tarifa</label>
+              <select class="form-select form-select-sm" id="filter-tarifa" onchange="applyFilters()">
+                <option value="all">Todas las tarifas</option>
+                <option value="basico">💰 Básico</option>
+                <option value="intermedio">💸 Intermedio</option>
+                <option value="premium">💎 Premium</option>
+                <option value="standard">🎵 Standard</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-2">
+              <label class="form-label">Fecha</label>
+              <select class="form-select form-select-sm" id="filter-date" onchange="applyFilters()">
+                <option value="all">Todas las fechas</option>
+                <option value="today">Hoy</option>
+                <option value="week">Esta semana</option>
+                <option value="month">Este mes</option>
+                <option value="future">Futuras</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendario Principal -->
+      <div class="calendar-container shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">🗓️ Calendario de Eventos</h5>
+          <div>
+            <button class="btn btn-outline-primary btn-sm me-2" onclick="exportCalendar()">
+              📤 Exportar
+            </button>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary" onclick="changeView('dayGridMonth')">Mes</button>
+              <button class="btn btn-outline-secondary" onclick="changeView('timeGridWeek')">Semana</button>
+              <button class="btn btn-outline-secondary" onclick="changeView('timeGridDay')">Día</button>
+            </div>
+          </div>
+        </div>
+        <div id="calendar"></div>
+      </div>
+
+      <!-- Próximos Eventos -->
+      <div class="card mt-4 shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h6 class="mb-0">⏰ Próximos Eventos (7 días)</h6>
+        </div>
+        <div class="card-body">
+          <div id="upcoming-events" class="row">
+            <div class="col-12 text-center">
+              <p class="text-muted">Cargando próximos eventos...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas -->
+      <div class="card mt-4 shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h6 class="mb-0">⚡ Acciones Rápidas</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-2">
+              <button class="btn btn-outline-primary w-100 quick-action-btn" onclick="showReservationsModal()">
+                📋 Ver Todas las Reservas
+              </button>
+            </div>
+            <div class="col-md-3 mb-2">
+              <button class="btn btn-outline-success w-100 quick-action-btn" onclick="quickConfirmAll()">
+                ✅ Confirmar Pendientes
+              </button>
+            </div>
+            <div class="col-md-3 mb-2">
+              <button class="btn btn-outline-warning w-100 quick-action-btn" onclick="exportData()">
+                📊 Exportar Reporte
+              </button>
+            </div>
+            <div class="col-md-3 mb-2">
+              <button class="btn btn-outline-danger w-100 quick-action-btn" onclick="clearOldReservations()">
+                🗑️ Limpiar Antiguas
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal de Gestión de Usuarios -->
+<div class="modal fade" id="usersModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <div class="modal-header bg-dark text-white"> <!-- AGREGUE ESTILOS -->
-        <h5 class="modal-title" id="reservLabel">📅 Detalles de Reservaciones</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">👥 Gestión de Usuarios</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-md-6">
-            <h6>Lista de Reservas</h6>
-            <div id="reservDetails" style="max-height: 400px; overflow-y: auto;"></div>
+        <ul class="nav nav-tabs mb-3" id="usersTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests">
+              ⏳ Solicitudes Pendientes
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved">
+              ✅ Usuarios Aprobados
+            </button>
+          </li>
+        </ul>
+        
+        <div class="tab-content">
+          <!-- Tab de Solicitudes Pendientes -->
+          <div class="tab-pane fade show active" id="requests" role="tabpanel">
+            <div id="pending-requests-list">
+              <p class="text-center text-muted">Cargando solicitudes...</p>
+            </div>
           </div>
-          <div class="col-md-6">
-            <h6>Vista Previa Calendario</h6>
-            <div id="reservCalendar" class="mt-3"></div>
+          
+          <!-- Tab de Usuarios Aprobados -->
+          <div class="tab-pane fade" id="approved" role="tabpanel">
+            <div id="approved-users-list">
+              <p class="text-center text-muted">Cargando usuarios...</p>
+            </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" onclick="loadDashboard()">Actualizar Lista</button>
+        <button type="button" class="btn btn-primary" onclick="loadUserManagement()">
+          🔄 Actualizar
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- JS Bootstrap Bundle (incluye Popper) -->
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
 <script src="js/login.js"></script>
 </body>
 </html>

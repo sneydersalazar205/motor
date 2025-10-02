@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prueba de Conexión Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .success { color: green; padding: 10px; border: 1px solid green; }
+        .error { color: red; padding: 10px; border: 1px solid red; }
+        .info { color: blue; padding: 10px; border: 1px solid blue; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Prueba de Conexión Supabase</h1>
+    <div id="result"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://vllouqgqmdovgqpicyat.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbG91cWdxbWRvdmdxcGljeWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNjAxMTgsImV4cCI6MjA3NDkzNjExOH0.NE6aJ-oQjDoMqOeEfQlcT3dKyzhRQVTLYZgnxIX87HY';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const resultDiv = document.getElementById('result');
+
+        async function testSupabase() {
+            resultDiv.innerHTML = '<div class="info">🔄 Probando conexión...</div>';
+
+            try {
+                // 1. Probar que la tabla existe
+                const { data, error } = await supabase
+                    .from('reservations')
+                    .select('*')
+                    .limit(2);
+
+                if (error) {
+                    if (error.code === '42P01') {
+                        resultDiv.innerHTML = `
+                            <div class="error">
+                                <h3>❌ La tabla 'reservations' NO existe</h3>
+                                <p><strong>Error:</strong> ${error.message}</p>
+                                <p>Por favor:</p>
+                                <ol>
+                                    <li>Ve a <a href="https://supabase.com/dashboard/project/vllouqgqmdovgqpicyat/sql" target="_blank">SQL Editor de Supabase</a></li>
+                                    <li>Copia y pega este SQL:</li>
+                                    <textarea style="width: 100%; height: 200px; margin: 10px 0;" readonly>
+CREATE TABLE reservations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  apellidos TEXT NOT NULL,
+  correo TEXT NOT NULL,
+  telefono TEXT,
+  evento TEXT NOT NULL,
+  observaciones TEXT,
+  fecha DATE NOT NULL,
+  hora TIME NOT NULL,
+  fecha_completa TIMESTAMP NOT NULL,
+  tipo_tarifa TEXT DEFAULT 'standard',
+  estado TEXT DEFAULT 'pendiente',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+ALTER TABLE reservations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all operations" ON reservations FOR ALL USING (true);
+                                    </textarea>
+                                    <li>Haz clic en "RUN"</li>
+                                    <li>Recarga esta página para verificar</li>
+                                </ol>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                    }
+                    return;
+                }
+
+                // 2. Mostrar datos existentes
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ ¡Conexión exitosa!</h3>
+                        <p>La tabla 'reservations' existe y tiene ${data.length} registros.</p>
+                        ${data.length > 0 ? `
+                            <h4>Datos de ejemplo:</h4>
+                            <ul>
+                                ${data.map(r => `
+                                    <li><strong>${r.nombre} ${r.apellidos}</strong> - ${r.evento} (${r.estado})</li>
+                                `).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                `;
+
+                // 3. Probar inserción
+                const testData = {
+                    nombre: 'Usuario',
+                    apellidos: 'Prueba',
+                    correo: 'test@terraza-roja.com',
+                    telefono: '3001234567',
+                    evento: 'Prueba de conexión',
+                    fecha: '2024-01-25',
+                    hora: '19:00',
+                    fecha_completa: '2024-01-25T19:00:00',
+                    estado: 'pendiente'
+                };
+
+                const { data: newRes, error: insertError } = await supabase
+                    .from('reservations')
+                    .insert([testData])
+                    .select();
+
+                if (insertError) {
+                    resultDiv.innerHTML += `<div class="error">❌ Error en inserción: ${insertError.message}</div>`;
+                } else {
+                    resultDiv.innerHTML += `<div class="success">✅ Inserción exitosa. ID: ${newRes[0].id}</div>`;
+                }
+
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error fatal: ${err.message}</div>`;
+            }
+        }
+
+        // Ejecutar prueba
+        testSupabase();
+    </script>
+</body>
+</html>

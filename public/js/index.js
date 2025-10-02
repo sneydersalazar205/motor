@@ -4,7 +4,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Toggle de tema (manteniendo tu código original)
+  // Toggle de tema
   const toggle = document.getElementById('theme-toggle');
   if (toggle) {
     toggle.addEventListener('click', () => {
@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
       saveThemePreference();
     });
   }
+
+  // Configurar botones de tarifas
+  setupTarifaButtons();
 
   // Formulario de reservas (actualizado con Supabase)
   const form = document.getElementById('reservaForm');
@@ -41,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
               hora: data.hora,
               fecha_completa: data.fecha + 'T' + data.hora,
               estado: 'pendiente',
-              tipo_tarifa: getSelectedTariff() // Nueva función para detectar la tarifa
+              tipo_tarifa: data.tarifa || 'basico'
             }
           ])
           .select();
@@ -73,14 +76,28 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeApp();
 });
 
-// Función para detectar qué tarifa seleccionó el usuario
-function getSelectedTariff() {
-  // Puedes mejorar esta lógica según cómo detectes la tarifa seleccionada
-  const modalTitle = document.querySelector('.modal-title');
-  if (modalTitle && modalTitle.textContent.includes('Básico')) return 'basico';
-  if (modalTitle && modalTitle.textContent.includes('Intermedio')) return 'intermedio';
-  if (modalTitle && modalTitle.textContent.includes('Premium')) return 'premium';
-  return 'basico'; // Por defecto
+// Configurar botones de tarifas para actualizar el modal
+function setupTarifaButtons() {
+  const tarifaButtons = document.querySelectorAll('[data-tarifa]');
+  tarifaButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tarifa = button.getAttribute('data-tarifa');
+      const tarifaInput = document.getElementById('tarifaSeleccionada');
+      const modalTitle = document.getElementById('modalTarifaTitle');
+      
+      if (tarifaInput) tarifaInput.value = tarifa;
+      
+      // Actualizar título del modal según la tarifa
+      if (modalTitle) {
+        const tarifas = {
+          'basico': 'Reservar - Tarifa Básica',
+          'intermedio': 'Reservar - Tarifa Intermedia',
+          'premium': 'Reservar - Tarifa Premium'
+        };
+        modalTitle.textContent = tarifas[tarifa] || 'Reservar Banda';
+      }
+    });
+  });
 }
 
 // Función para guardar preferencia del tema

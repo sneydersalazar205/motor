@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Reservaciones - Terraza Roja</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .result-card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .step { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Sistema de Reservaciones</h1>
+    
+    <div class="step">
+        <h3>📋 INSTRUCCIONES:</h3>
+        <ol>
+            <li>Ejecuta los tests en orden</li>
+            <li>Verifica que la tabla 'reservations' exista en Supabase</li>
+            <li>Revisa la consola del navegador para logs detallados</li>
+        </ol>
+    </div>
+
+    <div class="grid">
+        <!-- Test 1: Conexión y Tablas -->
+        <div class="test-section">
+            <h2>1. 🗄️ Base de Datos</h2>
+            <button onclick="testConnection()">Probar Conexión</button>
+            <button onclick="testTableStructure()">Verificar Tabla</button>
+            <div id="db-result"></div>
+        </div>
+        
+        <!-- Test 2: Operaciones CRUD -->
+        <div class="test-section">
+            <h2>2. 📝 Operaciones CRUD</h2>
+            <button onclick="testCreateReservation()">Crear Reserva</button>
+            <button onclick="testReadReservations()">Leer Reservas</button>
+            <div id="crud-result"></div>
+        </div>
+        
+        <!-- Test 3: Validaciones -->
+        <div class="test-section">
+            <h2>3. ✅ Validaciones</h2>
+            <button onclick="testValidations()">Test Validaciones</button>
+            <button onclick="testAvailability()">Test Disponibilidad</button>
+            <div id="validation-result"></div>
+        </div>
+        
+        <!-- Test 4: Datos de Prueba -->
+        <div class="test-section">
+            <h2>4. 🎯 Datos de Prueba</h2>
+            <button onclick="createTestData()">Crear Datos Test</button>
+            <button onclick="cleanTestData()">Limpiar Datos Test</button>
+            <div id="test-data-result"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. 📊 Test Completo</h2>
+        <button onclick="runFullTest()">🎯 EJECUTAR TEST COMPLETO</button>
+        <div id="full-test-result"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://vllouqgqmdovgqpicyat.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbG91cWdxbWRvdmdxcGljeWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNjAxMTgsImV4cCI6MjA3NDkzNjExOH0.NE6aJ-oQjDoMqOeEfQlcT3dKyzhRQVTLYZgnxIX87HY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let testReservationId = null;
+
+        // 1. Test de Conexión
+        async function testConnection() {
+            const resultDiv = document.getElementById('db-result');
+            resultDiv.innerHTML = '🔌 Probando conexión...';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('reservations')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ Error de conexión: ${error.message}</div>
+                        <div>⚠️ Verifica que:</div>
+                        <ul>
+                            <li>La URL y API Key sean correctas</li>
+                            <li>La tabla 'reservations' exista</li>
+                            <li>Las políticas RLS permitan acceso</li>
+                        </ul>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Conexión exitosa a Supabase</div>
+                        <div>📊 Total de reservas: ${data[0].count}</div>
+                    `;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 2. Test de Estructura de Tabla
+        async function testTableStructure() {
+            const resultDiv = document.getElementById('db-result');
+            resultDiv.innerHTML = '🔍 Verificando estructura de tabla...';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('reservations')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) {
+                    resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                    return;
+                }
+                
+                if (data.length === 0) {
+                    // Crear un registro de prueba para ver la estructura
+                    const testData = {
+                        nombre: 'Test',
+                        apellidos: 'Estructura',
+                        correo: 'test@test.com',
+                        telefono: '1234567890',
+                        evento: 'Test de estructura',
+                        fecha: '2024-01-01',
+                        hora: '12:00',
+                        fecha_completa: '2024-01-01T12:00',
+                        estado: 'pendiente',
+                        tipo_tarifa: 'standard'
+                    };
+                    
+                    const { data: newData, error: insertError } = await supabase
+                        .from('reservations')
+                        .insert([testData])
+                        .select();
+                    
+                    if (insertError) {
+                        resultDiv.innerHTML = `<div class="error">❌ Error creando test: ${insertError.message}</div>`;
+                        return;
+                    }
+                    
+                    data[0] = newData[0];
+                }
+                
+                const columns = Object.keys(data[0]);
+                const requiredColumns = ['nombre', 'correo', 'telefono', 'fecha', 'hora', 'fecha_completa', 'estado'];
+                const missingColumns = requiredColumns.filter(col => !columns.includes(col));
+                
+                if (missingColumns.length > 0) {
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ Faltan columnas: ${missingColumns.join(', ')}</div>
+                        <div>Columnas encontradas: ${columns.join(', ')}</div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Estructura de tabla correcta</div>
+                        <div>Columnas: ${columns.join(', ')}</div>
+                    `;
+                }
+                
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 3. Test Crear Reservación
+        async function testCreateReservation() {
+            const resultDiv = document.getElementById('crud-result');
+            resultDiv.innerHTML = '📝 Creando reserva de prueba...';
+            
+            try {
+                const testData = {
+                    nombre: 'Juan',
+                    apellidos: 'Pérez Test',
+                    correo: 'juan.perez.test' + Date.now() + '@test.com',
+                    telefono: '3138100402',
+                    evento: 'Evento de prueba del sistema',
+                    observaciones: 'Reserva creada desde test',
+                    fecha: '2024-12-31',
+                    hora: '20:00',
+                    fecha_completa: '2024-12-31T20:00',
+                    estado: 'pendiente',
+                    tipo_tarifa: 'standard'
+                };
+                
+                const { data, error } = await supabase
+                    .from('reservations')
+                    .insert([testData])
+                    .select();
+                
+                if (error) {
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ Error creando reserva: ${error.message}</div>
+                        <div>⚠️ Código de error: ${error.code}</div>
+                    `;
+                } else {
+                    testReservationId = data[0].id;
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Reserva creada exitosamente</div>
+                        <div class="result-card">
+                            <strong>ID:</strong> ${data[0].id}<br>
+                            <strong>Nombre:</strong> ${data[0].nombre} ${data[0].apellidos}<br>
+                            <strong>Email:</strong> ${data[0].correo}<br>
+                            <strong>Fecha:</strong> ${data[0].fecha} ${data[0].hora}<br>
+                            <strong>Estado:</strong> ${data[0].estado}
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 4. Test Leer Reservaciones
+        async function testReadReservations() {
+            const resultDiv = document.getElementById('crud-result');
+            resultDiv.innerHTML = '📖 Leyendo reservas...';
+            
+            try {
+                const { data: reservas, error } = await supabase
+                    .from('reservations')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+                
+                if (error) throw error;
+                
+                if (reservas.length === 0) {
+                    resultDiv.innerHTML = '<div class="error">No hay reservas</div>';
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ ${reservas.length} reservas encontradas</div>
+                        ${reservas.map(reserva => `
+                            <div class="result-card">
+                                <strong>${reserva.nombre} ${reserva.apellidos}</strong><br>
+                                Email: ${reserva.correo} | Tel: ${reserva.telefono}<br>
+                                Fecha: ${reserva.fecha} ${reserva.hora}<br>
+                                Estado: <span style="color: ${
+                                    reserva.estado === 'confirmada' ? 'green' : 
+                                    reserva.estado === 'pendiente' ? 'orange' : 'gray'
+                                }">${reserva.estado}</span>
+                            </div>
+                        `).join('')}
+                    `;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 5. Test Validaciones
+        async function testValidations() {
+            const resultDiv = document.getElementById('validation-result');
+            resultDiv.innerHTML = '✅ Probando validaciones...';
+            
+            try {
+                // Test de validación de email
+                const emailTests = [
+                    { email: 'test@test.com', shouldBeValid: true },
+                    { email: 'invalid-email', shouldBeValid: false },
+                    { email: 'test@test', shouldBeValid: false }
+                ];
+                
+                // Test de validación de teléfono
+                const phoneTests = [
+                    { phone: '3138100402', shouldBeValid: true },
+                    { phone: '123', shouldBeValid: false },
+                    { phone: 'abcdefghij', shouldBeValid: false }
+                ];
+                
+                let emailResults = '';
+                let phoneResults = '';
+                
+                emailTests.forEach(test => {
+                    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(test.email);
+                    const passed = isValid === test.shouldBeValid;
+                    emailResults += `
+                        <div style="color: ${passed ? 'green' : 'red'}">
+                            ${passed ? '✅' : '❌'} Email "${test.email}": 
+                            ${isValid ? 'válido' : 'inválido'} 
+                            (esperado: ${test.shouldBeValid ? 'válido' : 'inválido'})
+                        </div>
+                    `;
+                });
+                
+                phoneTests.forEach(test => {
+                    const isValid = /^\d{10}$/.test(test.phone);
+                    const passed = isValid === test.shouldBeValid;
+                    phoneResults += `
+                        <div style="color: ${passed ? 'green' : 'red'}">
+                            ${passed ? '✅' : '❌'} Teléfono "${test.phone}": 
+                            ${isValid ? 'válido' : 'inválido'} 
+                            (esperado: ${test.shouldBeValid ? 'válido' : 'inválido'})
+                        </div>
+                    `;
+                });
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Tests de validación completados</div>
+                    <div><strong>Emails:</strong></div>${emailResults}
+                    <div><strong>Teléfonos:</strong></div>${phoneResults}
+                `;
+                
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 6. Test Disponibilidad
+        async function testAvailability() {
+            const resultDiv = document.getElementById('validation-result');
+            resultDiv.innerHTML = '🔍 Probando sistema de disponibilidad...';
+            
+            try {
+                const testDateTime = '2024-12-31T20:00';
+                
+                const { data: existing, error } = await supabase
+                    .from('reservations')
+                    .select('id')
+                    .eq('fecha_completa', testDateTime)
+                    .neq('estado', 'cancelada')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                const isAvailable = existing.length === 0;
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Test de disponibilidad completado</div>
+                    <div class="result-card">
+                        <strong>Fecha/Hora probada:</strong> ${testDateTime}<br>
+                        <strong>Disponibilidad:</strong> ${isAvailable ? '✅ DISPONIBLE' : '❌ OCUPADO'}<br>
+                        <strong>Reservas encontradas:</strong> ${existing.length}
+                    </div>
+                `;
+                
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 7. Crear Datos de Prueba
+        async function createTestData() {
+            const resultDiv = document.getElementById('test-data-result');
+            resultDiv.innerHTML = '🎯 Creando datos de prueba...';
+            
+            try {
+                const testReservations = [
+                    {
+                        nombre: 'Maria',
+                        apellidos: 'Gonzalez',
+                        correo: 'maria.gonzalez@test.com',
+                        telefono: '3101234567',
+                        evento: 'Fiesta de Cumpleaños',
+                        fecha: '2024-12-25',
+                        hora: '18:00',
+                        fecha_completa: '2024-12-25T18:00',
+                        estado: 'confirmada',
+                        tipo_tarifa: 'premium'
+                    },
+                    {
+                        nombre: 'Carlos',
+                        apellidos: 'Lopez',
+                        correo: 'carlos.lopez@test.com',
+                        telefono: '3209876543',
+                        evento: 'Presentación Musical',
+                        fecha: '2024-12-26',
+                        hora: '20:00',
+                        fecha_completa: '2024-12-26T20:00',
+                        estado: 'pendiente',
+                        tipo_tarifa: 'standard'
+                    }
+                ];
+                
+                const { data, error } = await supabase
+                    .from('reservations')
+                    .insert(testReservations)
+                    .select();
+                
+                if (error) throw error;
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ ${data.length} reservas de prueba creadas</div>
+                    ${data.map(reserva => `
+                        <div class="result-card">
+                            <strong>${reserva.nombre} ${reserva.apellidos}</strong><br>
+                            ${reserva.fecha} ${reserva.hora} - ${reserva.estado}
+                        </div>
+                    `).join('')}
+                `;
+                
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 8. Limpiar Datos de Prueba
+        async function cleanTestData() {
+            const resultDiv = document.getElementById('test-data-result');
+            resultDiv.innerHTML = '🧹 Limpiando datos de prueba...';
+            
+            try {
+                const { error } = await supabase
+                    .from('reservations')
+                    .delete()
+                    .like('correo', '%@test.com');
+                
+                if (error) throw error;
+                
+                resultDiv.innerHTML = '<div class="success">✅ Datos de prueba eliminados</div>';
+                
+            } catch (err) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+            }
+        }
+
+        // 9. Test Completo
+        async function runFullTest() {
+            const resultDiv = document.getElementById('full-test-result');
+            resultDiv.innerHTML = '🎯 Ejecutando test completo...<br>';
+            
+            const tests = [
+                { name: 'Conexión a Supabase', fn: testConnection },
+                { name: 'Estructura de Tabla', fn: testTableStructure },
+                { name: 'Crear Reservación', fn: testCreateReservation },
+                { name: 'Leer Reservaciones', fn: testReadReservations },
+                { name: 'Validaciones', fn: testValidations },
+                { name: 'Disponibilidad', fn: testAvailability }
+            ];
+            
+            let allPassed = true;
+            let results = [];
+            
+            for (let test of tests) {
+                try {
+                    await test.fn();
+                    results.push({ name: test.name, status: '✅ PASÓ' });
+                    resultDiv.innerHTML += `<div style="color: green; margin: 5px 0;">✅ ${test.name}</div>`;
+                } catch (error) {
+                    allPassed = false;
+                    results.push({ name: test.name, status: '❌ FALLÓ', error: error.message });
+                    resultDiv.innerHTML += `<div style="color: red; margin: 5px 0;">❌ ${test.name}: ${error.message}</div>`;
+                }
+            }
+            
+            resultDiv.innerHTML += `<br><strong>RESULTADO FINAL: ${allPassed ? '🎉 TODOS LOS TESTS PASARON' : '❌ ALGUNOS TESTS FALLARON'}</strong>`;
+        }
+    </script>
+</body>
+</html>

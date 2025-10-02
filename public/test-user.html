@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Gestión de Usuarios - Terraza Roja</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .test-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .user-card {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Test de Gestión de Usuarios</h1>
+  
+  <div class="test-grid">
+    <div class="test-section">
+      <h2>1. Test de Conexión y Tablas</h2>
+      <button id="test-tables">Verificar Tablas</button>
+      <button id="test-rls">Verificar Políticas RLS</button>
+      <div id="tables-result"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>2. Test de Solicitudes de Registro</h2>
+      <button id="test-create-request">Crear Solicitud</button>
+      <button id="test-list-requests">Listar Solicitudes</button>
+      <div id="requests-result"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>3. Test de Autenticación</h2>
+      <button id="test-auth-admin">Login como Admin</button>
+      <button id="test-auth-banda">Login como Banda</button>
+      <div id="auth-result"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>4. Test de Gestión</h2>
+      <button id="test-approve-request">Aprobar Solicitud</button>
+      <button id="test-list-users">Listar Usuarios</button>
+      <div id="management-result"></div>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>5. Estado del Sistema</h2>
+    <button id="check-system-status">Verificar Estado Completo</button>
+    <div id="system-status"></div>
+  </div>
+
+  <script>
+    // Configuración de Supabase
+    const SUPABASE_URL = 'https://vllouqgqmdovgqpicyat.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbG91cWdxbWRvdmdxcGljeWF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNjAxMTgsImV4cCI6MjA3NDkzNjExOH0.NE6aJ-oQjDoMqOeEfQlcT3dKyzhRQVTLYZgnxIX87HY';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Test de tablas
+    document.getElementById('test-tables').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('tables-result');
+      resultDiv.innerHTML = 'Verificando tablas...';
+      
+      try {
+        // Verificar tabla de solicitudes
+        const { data: requests, error: requestsError } = await supabase
+          .from('registration_requests')
+          .select('count');
+        
+        // Verificar tabla de perfiles
+        const { data: profiles, error: profilesError } = await supabase
+          .from('user_profiles')
+          .select('count');
+        
+        if (requestsError || profilesError) {
+          resultDiv.innerHTML = `
+            <span class="error">❌ Error verificando tablas:</span><br>
+            ${requestsError ? 'registration_requests: ' + requestsError.message : ''}<br>
+            ${profilesError ? 'user_profiles: ' + profilesError.message : ''}
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <span class="success">✅ Tablas verificadas correctamente:</span><br>
+            - registration_requests: ${requests[0].count} registros<br>
+            - user_profiles: ${profiles[0].count} registros
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test de RLS
+    document.getElementById('test-rls').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('tables-result');
+      resultDiv.innerHTML = 'Verificando políticas RLS...';
+      
+      try {
+        // Intentar insertar sin autenticación (debería funcionar para registration_requests)
+        const { error: insertError } = await supabase
+          .from('registration_requests')
+          .insert([{
+            nombres: 'Test',
+            apellidos: 'User',
+            correo: 'test' + Date.now() + '@test.com',
+            nombre_usuario: 'testuser' + Date.now(),
+            password_hash: 'test123',
+            tipo_usuario: 'banda'
+          }]);
+        
+        if (insertError && !insertError.message.includes('duplicate key')) {
+          resultDiv.innerHTML = `<span class="error">❌ RLS puede estar bloqueando inserts: ${insertError.message}</span>`;
+        } else {
+          resultDiv.innerHTML = `<span class="success">✅ Políticas RLS configuradas correctamente</span>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test crear solicitud
+    document.getElementById('test-create-request').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('requests-result');
+      resultDiv.innerHTML = 'Creando solicitud de prueba...';
+      
+      try {
+        const testData = {
+          nombres: 'Juan',
+          apellidos: 'Pérez',
+          correo: 'juan.perez' + Date.now() + '@test.com',
+          nombre_usuario: 'juanperez' + Date.now(),
+          password_hash: 'password123',
+          telefono: '1234567890',
+          tipo_usuario: 'banda',
+          mensaje_solicitud: 'Solicitud de prueba del sistema'
+        };
+        
+        const { data, error } = await supabase
+          .from('registration_requests')
+          .insert([testData])
+          .select();
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">❌ Error creando solicitud: ${error.message}</span>`;
+        } else {
+          resultDiv.innerHTML = `
+            <span class="success">✅ Solicitud creada exitosamente</span><br>
+            <div class="user-card">
+              <strong>ID:</strong> ${data[0].id}<br>
+              <strong>Nombre:</strong> ${data[0].nombres} ${data[0].apellidos}<br>
+              <strong>Email:</strong> ${data[0].correo}<br>
+              <strong>Estado:</strong> ${data[0].estado}
+            </div>
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test listar solicitudes
+    document.getElementById('test-list-requests').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('requests-result');
+      resultDiv.innerHTML = 'Cargando solicitudes...';
+      
+      try {
+        const { data: requests, error } = await supabase
+          .from('registration_requests')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+        } else {
+          if (requests.length === 0) {
+            resultDiv.innerHTML = '<span class="error">No hay solicitudes</span>';
+          } else {
+            resultDiv.innerHTML = `
+              <span class="success">✅ ${requests.length} solicitudes encontradas:</span>
+              ${requests.map(req => `
+                <div class="user-card">
+                  <strong>${req.nombres} ${req.apellidos}</strong><br>
+                  Email: ${req.correo} | Usuario: ${req.nombre_usuario}<br>
+                  Estado: ${req.estado} | Tipo: ${req.tipo_usuario}<br>
+                  Fecha: ${new Date(req.created_at).toLocaleDateString()}
+                </div>
+              `).join('')}
+            `;
+          }
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test login como admin
+    document.getElementById('test-auth-admin').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('auth-result');
+      resultDiv.innerHTML = 'Iniciando sesión como admin...';
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: 'admin@terrazaroja.com',
+          password: 'admin123'
+        });
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+        } else {
+          resultDiv.innerHTML = `
+            <span class="success">✅ Login exitoso como admin</span><br>
+            <strong>Usuario:</strong> ${data.user.email}<br>
+            <strong>ID:</strong> ${data.user.id}
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test login como banda
+    document.getElementById('test-auth-banda').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('auth-result');
+      resultDiv.innerHTML = 'Iniciando sesión como banda...';
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: 'banda@terrazaroja.com',
+          password: 'musica123'
+        });
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+        } else {
+          resultDiv.innerHTML = `
+            <span class="success">✅ Login exitoso como banda</span><br>
+            <strong>Usuario:</strong> ${data.user.email}<br>
+            <strong>ID:</strong> ${data.user.id}
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test listar usuarios
+    document.getElementById('test-list-users').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('management-result');
+      resultDiv.innerHTML = 'Cargando usuarios...';
+      
+      try {
+        const { data: users, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .limit(5);
+        
+        if (error) {
+          resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+        } else {
+          if (users.length === 0) {
+            resultDiv.innerHTML = '<span class="error">No hay usuarios en user_profiles</span>';
+          } else {
+            resultDiv.innerHTML = `
+              <span class="success">✅ ${users.length} usuarios encontrados:</span>
+              ${users.map(user => `
+                <div class="user-card">
+                  <strong>${user.nombres} ${user.apellidos}</strong><br>
+                  Usuario: ${user.nombre_usuario}<br>
+                  Tipo: ${user.tipo_usuario}<br>
+                  Activo: ${user.activo ? 'Sí' : 'No'}
+                </div>
+              `).join('')}
+            `;
+          }
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    });
+
+    // Test de estado del sistema
+    document.getElementById('check-system-status').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('system-status');
+      resultDiv.innerHTML = 'Verificando estado del sistema...';
+      
+      try {
+        // Verificar múltiples aspectos del sistema
+        const checks = [];
+        
+        // 1. Conexión a Supabase
+        const { data: connectionTest } = await supabase.from('registration_requests').select('count');
+        checks.push({ name: 'Conexión Supabase', status: true });
+        
+        // 2. Tablas existentes
+        const tables = ['registration_requests', 'user_profiles'];
+        for (let table of tables) {
+          try {
+            await supabase.from(table).select('count').limit(1);
+            checks.push({ name: `Tabla ${table}`, status: true });
+          } catch (e) {
+            checks.push({ name: `Tabla ${table}`, status: false, error: e.message });
+          }
+        }
+        
+        // 3. Usuarios de prueba
+        const { data: testUsers } = await supabase
+          .from('registration_requests')
+          .select('correo, estado')
+          .limit(3);
+        
+        checks.push({ 
+          name: 'Datos de prueba', 
+          status: true,
+          details: `${testUsers?.length || 0} solicitudes encontradas` 
+        });
+        
+        // Mostrar resultados
+        resultDiv.innerHTML = `
+          <h3>Estado del Sistema</h3>
+          ${checks.map(check => `
+            <div style="color: ${check.status ? 'green' : 'red'}; margin: 5px 0;">
+              ${check.status ? '✅' : '❌'} ${check.name}
+              ${check.details ? ` - ${check.details}` : ''}
+              ${check.error ? `<br><small>Error: ${check.error}</small>` : ''}
+            </div>
+          `).join('')}
+        `;
+        
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❌ Error verificando estado: ${err.message}</span>`;
+      }
+    });
+  </script>
+</body>
+</html>
